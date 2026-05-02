@@ -26,7 +26,8 @@ export default function Compare() {
 
   const handleCompare = () => {
     if (isReady) {
-      setLocation("/results");
+      const ids = selectedPhoneIds.filter(Boolean).join(",");
+      setLocation(`/results?phones=${ids}&priority=${priority}`);
     }
   };
 

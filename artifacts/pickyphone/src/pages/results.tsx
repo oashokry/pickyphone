@@ -1,21 +1,35 @@
 import { useEffect, useState } from "react";
-import { useLocation, Link } from "wouter";
+import { useLocation, useSearch, Link } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Share2, Check } from "lucide-react";
 import { useComparison } from "@/context/ComparisonContext";
 import { phones as dbPhones, Phone } from "@/data/phones";
-import { getBestPhone } from "@/lib/recommendation";
+import { getBestPhone, Priority } from "@/lib/recommendation";
 import PhoneCard from "@/components/PhoneCard";
 import RecommendationBanner from "@/components/RecommendationBanner";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 export default function Results() {
   const [, setLocation] = useLocation();
-  const { selectedPhoneIds, priority } = useComparison();
+  const search = useSearch();
+  const { selectedPhoneIds, priority: contextPriority } = useComparison();
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
 
-  const selectedPhones = selectedPhoneIds
+  // Parse URL params so shared links work even without context
+  const params = new URLSearchParams(search);
+  const urlPhoneIds = params.get("phones")?.split(",").filter(Boolean) ?? [];
+  const urlPriority = (params.get("priority") as Priority | null);
+
+  // Prefer context if populated, otherwise fall back to URL params
+  const activePhoneIds = selectedPhoneIds.some(id => id !== null)
+    ? selectedPhoneIds
+    : urlPhoneIds;
+  const activePriority: Priority = contextPriority ?? urlPriority ?? "balanced";
+
+  const selectedPhones = activePhoneIds
     .filter(id => id !== null)
     .map(id => dbPhones.find(p => p.id === id))
     .filter(Boolean) as Phone[];
@@ -25,25 +39,40 @@ export default function Results() {
       setLocation("/compare");
       return;
     }
-    
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1500);
-
+    const timer = setTimeout(() => setLoading(false), 1500);
     return () => clearTimeout(timer);
   }, [selectedPhones.length, setLocation]);
 
   if (selectedPhones.length === 0) return null;
 
-  const recommendation = !loading ? getBestPhone(selectedPhones, priority) : null;
+  const recommendation = !loading ? getBestPhone(selectedPhones, activePriority) : null;
 
-  // Calculate winners
   const winners = {
     price: selectedPhones.reduce((min, p) => p.price < min.price ? p : min, selectedPhones[0]).id,
     displayScore: selectedPhones.reduce((max, p) => p.displayScore > max.displayScore ? p : max, selectedPhones[0]).id,
     cameraScore: selectedPhones.reduce((max, p) => p.camera.score > max.camera.score ? p : max, selectedPhones[0]).id,
     performanceScore: selectedPhones.reduce((max, p) => p.performance.score > max.performance.score ? p : max, selectedPhones[0]).id,
     batteryScore: selectedPhones.reduce((max, p) => p.battery.score > max.battery.score ? p : max, selectedPhones[0]).id,
+  };
+
+  const handleShare = async () => {
+    const ids = selectedPhones.map(p => p.id).join(",");
+    const shareUrl = `${window.location.origin}${window.location.pathname}?phones=${ids}&priority=${activePriority}`;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      // Fallback for browsers that block clipboard
+      const input = document.createElement("input");
+      input.value = shareUrl;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand("copy");
+      document.body.removeChild(input);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    }
   };
 
   return (
@@ -54,11 +83,32 @@ export default function Results() {
             <ArrowLeft className="w-4 h-4 mr-2" /> Back
           </Link>
           <span className="font-serif text-xl font-bold tracking-tight text-primary">PickyPhone.</span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleShare}
+            className={`flex items-center gap-2 text-sm border transition-all duration-300 ${
+              copied
+                ? "border-primary text-primary bg-primary/10"
+                : "border-border text-muted-foreground hover:border-primary/50 hover:text-primary"
+            }`}
+          >
+            {copied ? (
+              <>
+                <Check className="w-4 h-4" />
+                Link Copied!
+              </>
+            ) : (
+              <>
+                <Share2 className="w-4 h-4" />
+                Share
+              </>
+            )}
+          </Button>
         </div>
       </header>
 
       <main className="flex-1 max-w-7xl mx-auto w-full p-4 md:p-8">
-        
         {loading ? (
           <div className="space-y-12 animate-pulse">
             <Skeleton className="h-48 w-full rounded-2xl bg-card" />
