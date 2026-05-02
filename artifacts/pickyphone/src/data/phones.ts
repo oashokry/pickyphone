@@ -34,19 +34,39 @@ export interface Phone {
   displayScore: number;
 }
 
-const GSM = "https://fdn.gsmarena.com/vv/pics";
-const PH = (brand: string, model: string) =>
-  `https://placehold.co/400x600/111111/d4af37?text=${encodeURIComponent(brand + " " + model)}`;
+// Unsplash photos — all permanently accessible without auth via img src
+const U = "https://images.unsplash.com/photo";
+const img = (id: string) =>
+  `${U}-${id}?auto=format&fit=crop&w=400&h=600&q=85`;
+
+// Curated phone-photo pool (12 visually distinct shots)
+const PH = {
+  titanium:    img("1632661674596-618d8b6c49d0"), // silver/titanium flagship
+  iphoneWhite: img("1511707171634-5f897ff02aa9"), // white phone front
+  iphoneBack:  img("1551650975-87deedd944c3"),    // Apple back w/ logo
+  darkAngle:   img("1592750726-d99441a1e745"),    // dark premium angled
+  samsungDark: img("1610945415284-44fc7de7ebe8"), // Samsung on surface
+  androidClean:img("1598327105666-5b89351aff97"), // clean Android face
+  blackPhone:  img("1565849904461-04a58ad377e0"), // black phone angle
+  phoneSide:   img("1567581935884-3349723552ca"), // minimal phone side
+  premiumRear: img("1584003564911-4a01fcfa5800"), // camera array closeup
+  darkSurface: img("1585060544812-6b45742d762f"), // phone on dark surface
+  foldable:    img("1548705085-101177834f47"),    // foldable/flip
+  screenLit:   img("1556656793-08538906a9f8"),    // glowing screen on desk
+};
+
+const fb = (brand: string, model: string) =>
+  `https://placehold.co/400x600/111111/d4af37?text=${encodeURIComponent(brand + "\n" + model)}`;
 
 export const phones: Phone[] = [
-  // ─── APPLE ───────────────────────────────────────────────────────────────────
+  // ── APPLE ──────────────────────────────────────────────────────────────────
   {
     id: "iphone-16-pro-max",
     name: "iPhone 16 Pro Max",
     brand: "Apple",
-    imageUrl: `${GSM}/apple/apple-iphone-16-pro-max-1.jpg`,
-    fallbackImageUrl: PH("Apple", "iPhone 16 Pro Max"),
-    price: 1199,
+    imageUrl: PH.titanium,
+    fallbackImageUrl: fb("Apple", "iPhone 16 Pro Max"),
+    price: 1129,
     year: 2024,
     colors: [
       { name: "Desert Titanium", hex: "#c8b89a" },
@@ -65,9 +85,9 @@ export const phones: Phone[] = [
     id: "iphone-16-pro",
     name: "iPhone 16 Pro",
     brand: "Apple",
-    imageUrl: `${GSM}/apple/apple-iphone-16-pro-1.jpg`,
-    fallbackImageUrl: PH("Apple", "iPhone 16 Pro"),
-    price: 999,
+    imageUrl: PH.iphoneBack,
+    fallbackImageUrl: fb("Apple", "iPhone 16 Pro"),
+    price: 929,
     year: 2024,
     colors: [
       { name: "Desert Titanium", hex: "#c8b89a" },
@@ -86,9 +106,9 @@ export const phones: Phone[] = [
     id: "iphone-16-plus",
     name: "iPhone 16 Plus",
     brand: "Apple",
-    imageUrl: `${GSM}/apple/apple-iphone-16-plus-1.jpg`,
-    fallbackImageUrl: PH("Apple", "iPhone 16 Plus"),
-    price: 899,
+    imageUrl: PH.iphoneWhite,
+    fallbackImageUrl: fb("Apple", "iPhone 16 Plus"),
+    price: 829,
     year: 2024,
     colors: [
       { name: "Ultramarine", hex: "#4a5d7e" },
@@ -108,9 +128,9 @@ export const phones: Phone[] = [
     id: "iphone-16",
     name: "iPhone 16",
     brand: "Apple",
-    imageUrl: `${GSM}/apple/apple-iphone-16-1.jpg`,
-    fallbackImageUrl: PH("Apple", "iPhone 16"),
-    price: 799,
+    imageUrl: PH.screenLit,
+    fallbackImageUrl: fb("Apple", "iPhone 16"),
+    price: 729,
     year: 2024,
     colors: [
       { name: "Ultramarine", hex: "#4a5d7e" },
@@ -130,9 +150,9 @@ export const phones: Phone[] = [
     id: "iphone-16e",
     name: "iPhone 16e",
     brand: "Apple",
-    imageUrl: `${GSM}/apple/apple-iphone-16e-1.jpg`,
-    fallbackImageUrl: PH("Apple", "iPhone 16e"),
-    price: 599,
+    imageUrl: PH.phoneSide,
+    fallbackImageUrl: fb("Apple", "iPhone 16e"),
+    price: 549,
     year: 2025,
     colors: [
       { name: "Black", hex: "#1c1c1e" },
@@ -149,9 +169,9 @@ export const phones: Phone[] = [
     id: "iphone-15-pro-max",
     name: "iPhone 15 Pro Max",
     brand: "Apple",
-    imageUrl: `${GSM}/apple/apple-iphone-15-pro-max-1.jpg`,
-    fallbackImageUrl: PH("Apple", "iPhone 15 Pro Max"),
-    price: 999,
+    imageUrl: PH.darkAngle,
+    fallbackImageUrl: fb("Apple", "iPhone 15 Pro Max"),
+    price: 799,
     year: 2023,
     colors: [
       { name: "Natural Titanium", hex: "#e5e3d9" },
@@ -170,9 +190,9 @@ export const phones: Phone[] = [
     id: "iphone-15-pro",
     name: "iPhone 15 Pro",
     brand: "Apple",
-    imageUrl: `${GSM}/apple/apple-iphone-15-pro-1.jpg`,
-    fallbackImageUrl: PH("Apple", "iPhone 15 Pro"),
-    price: 849,
+    imageUrl: PH.titanium,
+    fallbackImageUrl: fb("Apple", "iPhone 15 Pro"),
+    price: 699,
     year: 2023,
     colors: [
       { name: "Natural Titanium", hex: "#e5e3d9" },
@@ -191,9 +211,9 @@ export const phones: Phone[] = [
     id: "iphone-15",
     name: "iPhone 15",
     brand: "Apple",
-    imageUrl: `${GSM}/apple/apple-iphone-15-1.jpg`,
-    fallbackImageUrl: PH("Apple", "iPhone 15"),
-    price: 699,
+    imageUrl: PH.iphoneWhite,
+    fallbackImageUrl: fb("Apple", "iPhone 15"),
+    price: 549,
     year: 2023,
     colors: [
       { name: "Black", hex: "#353637" },
@@ -210,14 +230,14 @@ export const phones: Phone[] = [
     displayScore: 87,
   },
 
-  // ─── SAMSUNG ─────────────────────────────────────────────────────────────────
+  // ── SAMSUNG ────────────────────────────────────────────────────────────────
   {
     id: "galaxy-s25-ultra",
     name: "Galaxy S25 Ultra",
     brand: "Samsung",
-    imageUrl: `${GSM}/samsung/samsung-galaxy-s25-ultra-1.jpg`,
-    fallbackImageUrl: PH("Samsung", "Galaxy S25 Ultra"),
-    price: 1299,
+    imageUrl: PH.samsungDark,
+    fallbackImageUrl: fb("Samsung", "Galaxy S25 Ultra"),
+    price: 1199,
     year: 2025,
     colors: [
       { name: "Titanium Silverblue", hex: "#8c9fb5" },
@@ -236,9 +256,9 @@ export const phones: Phone[] = [
     id: "galaxy-s25-plus",
     name: "Galaxy S25+",
     brand: "Samsung",
-    imageUrl: `${GSM}/samsung/samsung-galaxy-s25plus-1.jpg`,
-    fallbackImageUrl: PH("Samsung", "Galaxy S25+"),
-    price: 999,
+    imageUrl: PH.darkSurface,
+    fallbackImageUrl: fb("Samsung", "Galaxy S25+"),
+    price: 899,
     year: 2025,
     colors: [
       { name: "Icy Blue", hex: "#b8d0e0" },
@@ -257,9 +277,9 @@ export const phones: Phone[] = [
     id: "galaxy-s25",
     name: "Galaxy S25",
     brand: "Samsung",
-    imageUrl: `${GSM}/samsung/samsung-galaxy-s25-1.jpg`,
-    fallbackImageUrl: PH("Samsung", "Galaxy S25"),
-    price: 799,
+    imageUrl: PH.blackPhone,
+    fallbackImageUrl: fb("Samsung", "Galaxy S25"),
+    price: 699,
     year: 2025,
     colors: [
       { name: "Icy Blue", hex: "#b8d0e0" },
@@ -278,9 +298,9 @@ export const phones: Phone[] = [
     id: "galaxy-s25-edge",
     name: "Galaxy S25 Edge",
     brand: "Samsung",
-    imageUrl: `${GSM}/samsung/samsung-galaxy-s25-edge-1.jpg`,
-    fallbackImageUrl: PH("Samsung", "Galaxy S25 Edge"),
-    price: 1099,
+    imageUrl: PH.premiumRear,
+    fallbackImageUrl: fb("Samsung", "Galaxy S25 Edge"),
+    price: 1049,
     year: 2025,
     colors: [
       { name: "Titanium Jetblack", hex: "#1a1a1a" },
@@ -298,9 +318,9 @@ export const phones: Phone[] = [
     id: "galaxy-s24-ultra",
     name: "Galaxy S24 Ultra",
     brand: "Samsung",
-    imageUrl: `${GSM}/samsung/samsung-galaxy-s24-ultra-5g-1.jpg`,
-    fallbackImageUrl: PH("Samsung", "Galaxy S24 Ultra"),
-    price: 1099,
+    imageUrl: PH.darkAngle,
+    fallbackImageUrl: fb("Samsung", "Galaxy S24 Ultra"),
+    price: 949,
     year: 2024,
     colors: [
       { name: "Titanium Black", hex: "#3b3b3b" },
@@ -319,9 +339,9 @@ export const phones: Phone[] = [
     id: "galaxy-s24",
     name: "Galaxy S24",
     brand: "Samsung",
-    imageUrl: `${GSM}/samsung/samsung-galaxy-s24-5g-1.jpg`,
-    fallbackImageUrl: PH("Samsung", "Galaxy S24"),
-    price: 699,
+    imageUrl: PH.samsungDark,
+    fallbackImageUrl: fb("Samsung", "Galaxy S24"),
+    price: 549,
     year: 2024,
     colors: [
       { name: "Onyx Black", hex: "#2b2b2b" },
@@ -340,16 +360,16 @@ export const phones: Phone[] = [
     id: "galaxy-z-fold-6",
     name: "Galaxy Z Fold 6",
     brand: "Samsung",
-    imageUrl: `${GSM}/samsung/samsung-galaxy-z-fold6-1.jpg`,
-    fallbackImageUrl: PH("Samsung", "Galaxy Z Fold 6"),
-    price: 1899,
+    imageUrl: PH.foldable,
+    fallbackImageUrl: fb("Samsung", "Galaxy Z Fold 6"),
+    price: 1649,
     year: 2024,
     colors: [
       { name: "Crafted Black", hex: "#2a2a2a" },
       { name: "Silver Shadow", hex: "#c8c8c4" },
       { name: "Pink", hex: "#d4a0a0" },
     ],
-    display: { size: "7.6 inches (inner)", resolution: "2160 x 1856", type: "Dynamic LTPO AMOLED 2X", refreshRate: "120Hz" },
+    display: { size: "7.6 in (inner)", resolution: "2160 x 1856", type: "Dynamic LTPO AMOLED 2X", refreshRate: "120Hz" },
     camera: { main: "50MP f/1.8", ultrawide: "12MP f/2.2", telephoto: "10MP 3x Optical", video: "4K@60fps", score: 88 },
     performance: { chipset: "Snapdragon 8 Gen 3", ram: "12GB", score: 96 },
     battery: { capacity: "4400 mAh", charging: "25W wired, 15W wireless", score: 86 },
@@ -360,9 +380,9 @@ export const phones: Phone[] = [
     id: "galaxy-z-flip-6",
     name: "Galaxy Z Flip 6",
     brand: "Samsung",
-    imageUrl: `${GSM}/samsung/samsung-galaxy-z-flip6-1.jpg`,
-    fallbackImageUrl: PH("Samsung", "Galaxy Z Flip 6"),
-    price: 1099,
+    imageUrl: PH.foldable,
+    fallbackImageUrl: fb("Samsung", "Galaxy Z Flip 6"),
+    price: 899,
     year: 2024,
     colors: [
       { name: "Crafted Black", hex: "#2a2a2a" },
@@ -370,7 +390,7 @@ export const phones: Phone[] = [
       { name: "Peach Gold", hex: "#d4a090" },
       { name: "Mint", hex: "#a8d4b8" },
     ],
-    display: { size: "6.7 inches (inner)", resolution: "2640 x 1080", type: "Dynamic LTPO AMOLED", refreshRate: "120Hz" },
+    display: { size: "6.7 in (inner)", resolution: "2640 x 1080", type: "Dynamic LTPO AMOLED", refreshRate: "120Hz" },
     camera: { main: "50MP f/1.8", ultrawide: "12MP f/2.2", telephoto: "None", video: "4K@60fps", score: 82 },
     performance: { chipset: "Snapdragon 8 Gen 3", ram: "12GB", score: 96 },
     battery: { capacity: "4000 mAh", charging: "25W wired, 15W wireless", score: 82 },
@@ -381,9 +401,9 @@ export const phones: Phone[] = [
     id: "galaxy-s23-ultra",
     name: "Galaxy S23 Ultra",
     brand: "Samsung",
-    imageUrl: `${GSM}/samsung/samsung-galaxy-s23-ultra-5g-1.jpg`,
-    fallbackImageUrl: PH("Samsung", "Galaxy S23 Ultra"),
-    price: 799,
+    imageUrl: PH.darkSurface,
+    fallbackImageUrl: fb("Samsung", "Galaxy S23 Ultra"),
+    price: 649,
     year: 2023,
     colors: [
       { name: "Phantom Black", hex: "#1a1a1a" },
@@ -399,12 +419,33 @@ export const phones: Phone[] = [
     displayScore: 96,
   },
   {
+    id: "galaxy-a56",
+    name: "Galaxy A56 5G",
+    brand: "Samsung",
+    imageUrl: PH.androidClean,
+    fallbackImageUrl: fb("Samsung", "Galaxy A56"),
+    price: 399,
+    year: 2025,
+    colors: [
+      { name: "Awesome Graphite", hex: "#2b2f32" },
+      { name: "Awesome White", hex: "#f0f2f1" },
+      { name: "Awesome Blue", hex: "#4a6890" },
+      { name: "Awesome Pink", hex: "#d4a0b0" },
+    ],
+    display: { size: "6.7 inches", resolution: "2340 x 1080", type: "Super AMOLED", refreshRate: "120Hz" },
+    camera: { main: "50MP f/1.8 OIS", ultrawide: "12MP f/2.2", telephoto: "5MP f/2.4", video: "4K@30fps", score: 80 },
+    performance: { chipset: "Exynos 1580", ram: "8GB / 12GB", score: 79 },
+    battery: { capacity: "5000 mAh", charging: "45W wired", score: 90 },
+    storage: ["128GB", "256GB"],
+    displayScore: 86,
+  },
+  {
     id: "galaxy-a55",
     name: "Galaxy A55 5G",
     brand: "Samsung",
-    imageUrl: `${GSM}/samsung/samsung-galaxy-a55-5g-1.jpg`,
-    fallbackImageUrl: PH("Samsung", "Galaxy A55"),
-    price: 449,
+    imageUrl: PH.screenLit,
+    fallbackImageUrl: fb("Samsung", "Galaxy A55"),
+    price: 349,
     year: 2024,
     colors: [
       { name: "Awesome Iceblue", hex: "#9fbdd4" },
@@ -417,17 +458,17 @@ export const phones: Phone[] = [
     performance: { chipset: "Exynos 1480", ram: "8GB", score: 77 },
     battery: { capacity: "5000 mAh", charging: "25W wired", score: 89 },
     storage: ["128GB", "256GB"],
-    displayScore: 86,
+    displayScore: 84,
   },
 
-  // ─── GOOGLE ──────────────────────────────────────────────────────────────────
+  // ── GOOGLE ──────────────────────────────────────────────────────────────────
   {
     id: "pixel-9-pro-xl",
     name: "Pixel 9 Pro XL",
     brand: "Google",
-    imageUrl: `${GSM}/google/google-pixel-9-pro-xl-1.jpg`,
-    fallbackImageUrl: PH("Google", "Pixel 9 Pro XL"),
-    price: 1099,
+    imageUrl: PH.androidClean,
+    fallbackImageUrl: fb("Google", "Pixel 9 Pro XL"),
+    price: 949,
     year: 2024,
     colors: [
       { name: "Obsidian", hex: "#1f2022" },
@@ -446,9 +487,9 @@ export const phones: Phone[] = [
     id: "pixel-9-pro",
     name: "Pixel 9 Pro",
     brand: "Google",
-    imageUrl: `${GSM}/google/google-pixel-9-pro-1.jpg`,
-    fallbackImageUrl: PH("Google", "Pixel 9 Pro"),
-    price: 999,
+    imageUrl: PH.phoneSide,
+    fallbackImageUrl: fb("Google", "Pixel 9 Pro"),
+    price: 849,
     year: 2024,
     colors: [
       { name: "Obsidian", hex: "#1f2022" },
@@ -467,9 +508,9 @@ export const phones: Phone[] = [
     id: "pixel-9",
     name: "Pixel 9",
     brand: "Google",
-    imageUrl: `${GSM}/google/google-pixel-9-1.jpg`,
-    fallbackImageUrl: PH("Google", "Pixel 9"),
-    price: 799,
+    imageUrl: PH.darkSurface,
+    fallbackImageUrl: fb("Google", "Pixel 9"),
+    price: 649,
     year: 2024,
     colors: [
       { name: "Obsidian", hex: "#1f2022" },
@@ -488,15 +529,15 @@ export const phones: Phone[] = [
     id: "pixel-9-pro-fold",
     name: "Pixel 9 Pro Fold",
     brand: "Google",
-    imageUrl: `${GSM}/google/google-pixel-9-pro-fold-1.jpg`,
-    fallbackImageUrl: PH("Google", "Pixel 9 Pro Fold"),
-    price: 1799,
+    imageUrl: PH.foldable,
+    fallbackImageUrl: fb("Google", "Pixel 9 Pro Fold"),
+    price: 1549,
     year: 2024,
     colors: [
       { name: "Obsidian", hex: "#1f2022" },
       { name: "Porcelain", hex: "#e8e5df" },
     ],
-    display: { size: "8.0 inches (inner)", resolution: "2076 x 2152", type: "LTPO OLED", refreshRate: "120Hz" },
+    display: { size: "8.0 in (inner)", resolution: "2076 x 2152", type: "LTPO OLED", refreshRate: "120Hz" },
     camera: { main: "48MP f/1.7", ultrawide: "10.5MP f/2.2", telephoto: "10.8MP 5x Optical", video: "4K@60fps", score: 91 },
     performance: { chipset: "Google Tensor G4", ram: "16GB", score: 90 },
     battery: { capacity: "4650 mAh", charging: "21W wired, 21W wireless", score: 86 },
@@ -507,9 +548,9 @@ export const phones: Phone[] = [
     id: "pixel-9a",
     name: "Pixel 9a",
     brand: "Google",
-    imageUrl: `${GSM}/google/google-pixel-9a-1.jpg`,
-    fallbackImageUrl: PH("Google", "Pixel 9a"),
-    price: 499,
+    imageUrl: PH.androidClean,
+    fallbackImageUrl: fb("Google", "Pixel 9a"),
+    price: 449,
     year: 2025,
     colors: [
       { name: "Obsidian", hex: "#1f2022" },
@@ -528,9 +569,9 @@ export const phones: Phone[] = [
     id: "pixel-8-pro",
     name: "Pixel 8 Pro",
     brand: "Google",
-    imageUrl: `${GSM}/google/google-pixel-8-pro-1.jpg`,
-    fallbackImageUrl: PH("Google", "Pixel 8 Pro"),
-    price: 699,
+    imageUrl: PH.blackPhone,
+    fallbackImageUrl: fb("Google", "Pixel 8 Pro"),
+    price: 549,
     year: 2023,
     colors: [
       { name: "Obsidian", hex: "#1f2022" },
@@ -548,9 +589,9 @@ export const phones: Phone[] = [
     id: "pixel-8a",
     name: "Pixel 8a",
     brand: "Google",
-    imageUrl: `${GSM}/google/google-pixel-8a-1.jpg`,
-    fallbackImageUrl: PH("Google", "Pixel 8a"),
-    price: 499,
+    imageUrl: PH.screenLit,
+    fallbackImageUrl: fb("Google", "Pixel 8a"),
+    price: 349,
     year: 2024,
     colors: [
       { name: "Obsidian", hex: "#1f2022" },
@@ -566,14 +607,14 @@ export const phones: Phone[] = [
     displayScore: 89,
   },
 
-  // ─── ONEPLUS ─────────────────────────────────────────────────────────────────
+  // ── ONEPLUS ─────────────────────────────────────────────────────────────────
   {
     id: "oneplus-13",
     name: "OnePlus 13",
     brand: "OnePlus",
-    imageUrl: `${GSM}/oneplus/oneplus-13-1.jpg`,
-    fallbackImageUrl: PH("OnePlus", "13"),
-    price: 899,
+    imageUrl: PH.premiumRear,
+    fallbackImageUrl: fb("OnePlus", "13"),
+    price: 799,
     year: 2025,
     colors: [
       { name: "Midnight Ocean", hex: "#1a2535" },
@@ -590,9 +631,9 @@ export const phones: Phone[] = [
     id: "oneplus-12",
     name: "OnePlus 12",
     brand: "OnePlus",
-    imageUrl: `${GSM}/oneplus/oneplus-12-1.jpg`,
-    fallbackImageUrl: PH("OnePlus", "12"),
-    price: 699,
+    imageUrl: PH.darkAngle,
+    fallbackImageUrl: fb("OnePlus", "12"),
+    price: 599,
     year: 2024,
     colors: [
       { name: "Silky Black", hex: "#1d1d1f" },
@@ -609,15 +650,15 @@ export const phones: Phone[] = [
     id: "oneplus-open",
     name: "OnePlus Open",
     brand: "OnePlus",
-    imageUrl: `${GSM}/oneplus/oneplus-open-1.jpg`,
-    fallbackImageUrl: PH("OnePlus", "Open"),
-    price: 1499,
+    imageUrl: PH.foldable,
+    fallbackImageUrl: fb("OnePlus", "Open"),
+    price: 1199,
     year: 2023,
     colors: [
       { name: "Emerald Dusk", hex: "#2e5449" },
       { name: "Voyager Black", hex: "#1a1a1a" },
     ],
-    display: { size: "7.82 inches (inner)", resolution: "2440 x 2268", type: "LTPO AMOLED", refreshRate: "120Hz" },
+    display: { size: "7.82 in (inner)", resolution: "2440 x 2268", type: "LTPO AMOLED", refreshRate: "120Hz" },
     camera: { main: "48MP f/1.7 Hasselblad", ultrawide: "48MP f/2.2", telephoto: "64MP 3x Optical", video: "4K@60fps", score: 89 },
     performance: { chipset: "Snapdragon 8 Gen 2", ram: "16GB", score: 93 },
     battery: { capacity: "4805 mAh", charging: "67W wired", score: 87 },
@@ -625,14 +666,14 @@ export const phones: Phone[] = [
     displayScore: 92,
   },
 
-  // ─── XIAOMI ──────────────────────────────────────────────────────────────────
+  // ── XIAOMI ──────────────────────────────────────────────────────────────────
   {
     id: "xiaomi-15-ultra",
     name: "Xiaomi 15 Ultra",
     brand: "Xiaomi",
-    imageUrl: `${GSM}/xiaomi/xiaomi-15-ultra-1.jpg`,
-    fallbackImageUrl: PH("Xiaomi", "15 Ultra"),
-    price: 1299,
+    imageUrl: PH.premiumRear,
+    fallbackImageUrl: fb("Xiaomi", "15 Ultra"),
+    price: 1149,
     year: 2025,
     colors: [
       { name: "Black", hex: "#111" },
@@ -649,9 +690,9 @@ export const phones: Phone[] = [
     id: "xiaomi-15-pro",
     name: "Xiaomi 15 Pro",
     brand: "Xiaomi",
-    imageUrl: `${GSM}/xiaomi/xiaomi-15-pro-1.jpg`,
-    fallbackImageUrl: PH("Xiaomi", "15 Pro"),
-    price: 999,
+    imageUrl: PH.samsungDark,
+    fallbackImageUrl: fb("Xiaomi", "15 Pro"),
+    price: 899,
     year: 2025,
     colors: [
       { name: "Black", hex: "#111" },
@@ -669,9 +710,9 @@ export const phones: Phone[] = [
     id: "xiaomi-15",
     name: "Xiaomi 15",
     brand: "Xiaomi",
-    imageUrl: `${GSM}/xiaomi/xiaomi-15-1.jpg`,
-    fallbackImageUrl: PH("Xiaomi", "15"),
-    price: 799,
+    imageUrl: PH.blackPhone,
+    fallbackImageUrl: fb("Xiaomi", "15"),
+    price: 699,
     year: 2025,
     colors: [
       { name: "Black", hex: "#111" },
@@ -689,9 +730,9 @@ export const phones: Phone[] = [
     id: "xiaomi-14-ultra",
     name: "Xiaomi 14 Ultra",
     brand: "Xiaomi",
-    imageUrl: `${GSM}/xiaomi/xiaomi-14-ultra-1.jpg`,
-    fallbackImageUrl: PH("Xiaomi", "14 Ultra"),
-    price: 1099,
+    imageUrl: PH.darkAngle,
+    fallbackImageUrl: fb("Xiaomi", "14 Ultra"),
+    price: 849,
     year: 2024,
     colors: [
       { name: "Titanium Black", hex: "#2a2a2a" },
@@ -705,35 +746,15 @@ export const phones: Phone[] = [
     storage: ["256GB", "512GB", "1TB"],
     displayScore: 96,
   },
-  {
-    id: "xiaomi-14-pro",
-    name: "Xiaomi 14 Pro",
-    brand: "Xiaomi",
-    imageUrl: `${GSM}/xiaomi/xiaomi-14-pro-1.jpg`,
-    fallbackImageUrl: PH("Xiaomi", "14 Pro"),
-    price: 899,
-    year: 2024,
-    colors: [
-      { name: "Black", hex: "#111" },
-      { name: "Silver", hex: "#ccc" },
-      { name: "Titanium", hex: "#999" },
-    ],
-    display: { size: "6.73 inches", resolution: "3200 x 1440", type: "LTPO AMOLED", refreshRate: "120Hz" },
-    camera: { main: "50MP Variable Aperture Leica", ultrawide: "50MP f/2.2", telephoto: "50MP 3.2x Optical", video: "8K@24fps", score: 93 },
-    performance: { chipset: "Snapdragon 8 Gen 3", ram: "12GB / 16GB", score: 96 },
-    battery: { capacity: "4880 mAh", charging: "120W wired, 50W wireless", score: 95 },
-    storage: ["256GB", "512GB", "1TB"],
-    displayScore: 95,
-  },
 
-  // ─── SONY ────────────────────────────────────────────────────────────────────
+  // ── SONY ────────────────────────────────────────────────────────────────────
   {
     id: "xperia-1-vi",
     name: "Xperia 1 VI",
     brand: "Sony",
-    imageUrl: `${GSM}/sony/sony-xperia-1-vi-1.jpg`,
-    fallbackImageUrl: PH("Sony", "Xperia 1 VI"),
-    price: 1299,
+    imageUrl: PH.titanium,
+    fallbackImageUrl: fb("Sony", "Xperia 1 VI"),
+    price: 1099,
     year: 2024,
     colors: [
       { name: "Black", hex: "#111" },
@@ -752,9 +773,9 @@ export const phones: Phone[] = [
     id: "xperia-5-vi",
     name: "Xperia 5 VI",
     brand: "Sony",
-    imageUrl: `${GSM}/sony/sony-xperia-5-vi-1.jpg`,
-    fallbackImageUrl: PH("Sony", "Xperia 5 VI"),
-    price: 999,
+    imageUrl: PH.phoneSide,
+    fallbackImageUrl: fb("Sony", "Xperia 5 VI"),
+    price: 849,
     year: 2024,
     colors: [
       { name: "Black", hex: "#111" },
@@ -769,14 +790,14 @@ export const phones: Phone[] = [
     displayScore: 88,
   },
 
-  // ─── NOTHING ─────────────────────────────────────────────────────────────────
+  // ── NOTHING ─────────────────────────────────────────────────────────────────
   {
     id: "nothing-phone-3a",
     name: "Nothing Phone (3a)",
     brand: "Nothing",
-    imageUrl: `${GSM}/nothing/nothing-phone-3a-1.jpg`,
-    fallbackImageUrl: PH("Nothing", "Phone (3a)"),
-    price: 399,
+    imageUrl: PH.darkSurface,
+    fallbackImageUrl: fb("Nothing", "Phone (3a)"),
+    price: 349,
     year: 2025,
     colors: [
       { name: "Black", hex: "#1a1a1a" },
@@ -793,9 +814,9 @@ export const phones: Phone[] = [
     id: "nothing-phone-2a",
     name: "Nothing Phone (2a)",
     brand: "Nothing",
-    imageUrl: `${GSM}/nothing/nothing-phone-2a-1.jpg`,
-    fallbackImageUrl: PH("Nothing", "Phone (2a)"),
-    price: 349,
+    imageUrl: PH.screenLit,
+    fallbackImageUrl: fb("Nothing", "Phone (2a)"),
+    price: 279,
     year: 2024,
     colors: [
       { name: "Black", hex: "#1a1a1a" },
@@ -813,9 +834,9 @@ export const phones: Phone[] = [
     id: "nothing-phone-2",
     name: "Nothing Phone (2)",
     brand: "Nothing",
-    imageUrl: `${GSM}/nothing/nothing-phone-2-1.jpg`,
-    fallbackImageUrl: PH("Nothing", "Phone (2)"),
-    price: 499,
+    imageUrl: PH.blackPhone,
+    fallbackImageUrl: fb("Nothing", "Phone (2)"),
+    price: 379,
     year: 2023,
     colors: [
       { name: "Dark Gray", hex: "#2f3136" },
@@ -829,14 +850,14 @@ export const phones: Phone[] = [
     displayScore: 88,
   },
 
-  // ─── MOTOROLA ────────────────────────────────────────────────────────────────
+  // ── MOTOROLA ────────────────────────────────────────────────────────────────
   {
     id: "motorola-edge-50-ultra",
     name: "Edge 50 Ultra",
     brand: "Motorola",
-    imageUrl: `${GSM}/motorola/motorola-edge-50-ultra-1.jpg`,
-    fallbackImageUrl: PH("Motorola", "Edge 50 Ultra"),
-    price: 799,
+    imageUrl: PH.darkSurface,
+    fallbackImageUrl: fb("Motorola", "Edge 50 Ultra"),
+    price: 649,
     year: 2024,
     colors: [
       { name: "Nordic Wood", hex: "#8b7355" },
@@ -854,9 +875,9 @@ export const phones: Phone[] = [
     id: "motorola-edge-50-pro",
     name: "Edge 50 Pro",
     brand: "Motorola",
-    imageUrl: `${GSM}/motorola/motorola-edge-50-pro-1.jpg`,
-    fallbackImageUrl: PH("Motorola", "Edge 50 Pro"),
-    price: 599,
+    imageUrl: PH.phoneSide,
+    fallbackImageUrl: fb("Motorola", "Edge 50 Pro"),
+    price: 449,
     year: 2024,
     colors: [
       { name: "Black Beauty", hex: "#1c1d21" },
@@ -874,16 +895,16 @@ export const phones: Phone[] = [
     id: "motorola-razr-50-ultra",
     name: "Razr 50 Ultra",
     brand: "Motorola",
-    imageUrl: `${GSM}/motorola/motorola-razr-50-ultra-1.jpg`,
-    fallbackImageUrl: PH("Motorola", "Razr 50 Ultra"),
-    price: 999,
+    imageUrl: PH.foldable,
+    fallbackImageUrl: fb("Motorola", "Razr 50 Ultra"),
+    price: 849,
     year: 2024,
     colors: [
       { name: "Peach Fuzz", hex: "#f0c4a8" },
       { name: "Spring Green", hex: "#8acc8a" },
       { name: "Midnight Blue", hex: "#1a2540" },
     ],
-    display: { size: "6.9 inches (inner)", resolution: "2640 x 1080", type: "POLED", refreshRate: "165Hz" },
+    display: { size: "6.9 in (inner)", resolution: "2640 x 1080", type: "POLED", refreshRate: "165Hz" },
     camera: { main: "50MP f/1.7 OIS", ultrawide: "50MP f/2.2", telephoto: "None", video: "4K@30fps", score: 83 },
     performance: { chipset: "Snapdragon 8s Gen 3", ram: "12GB", score: 90 },
     battery: { capacity: "4000 mAh", charging: "45W wired, 15W wireless", score: 81 },
@@ -891,14 +912,14 @@ export const phones: Phone[] = [
     displayScore: 88,
   },
 
-  // ─── ASUS ────────────────────────────────────────────────────────────────────
+  // ── ASUS ─────────────────────────────────────────────────────────────────────
   {
     id: "asus-rog-phone-9-pro",
     name: "ROG Phone 9 Pro",
     brand: "ASUS",
-    imageUrl: `${GSM}/asus/asus-rog-phone-9-pro-1.jpg`,
-    fallbackImageUrl: PH("ASUS", "ROG Phone 9 Pro"),
-    price: 1299,
+    imageUrl: PH.darkSurface,
+    fallbackImageUrl: fb("ASUS", "ROG Phone 9 Pro"),
+    price: 1149,
     year: 2025,
     colors: [
       { name: "Phantom Black", hex: "#0a0a0a" },
@@ -915,9 +936,9 @@ export const phones: Phone[] = [
     id: "asus-rog-phone-8-pro",
     name: "ROG Phone 8 Pro",
     brand: "ASUS",
-    imageUrl: `${GSM}/asus/asus-rog-phone-8-pro-1.jpg`,
-    fallbackImageUrl: PH("ASUS", "ROG Phone 8 Pro"),
-    price: 1099,
+    imageUrl: PH.blackPhone,
+    fallbackImageUrl: fb("ASUS", "ROG Phone 8 Pro"),
+    price: 849,
     year: 2024,
     colors: [
       { name: "Phantom Black", hex: "#0a0a0a" },
@@ -934,9 +955,9 @@ export const phones: Phone[] = [
     id: "asus-zenfone-11-ultra",
     name: "Zenfone 11 Ultra",
     brand: "ASUS",
-    imageUrl: `${GSM}/asus/asus-zenfone-11-ultra-1.jpg`,
-    fallbackImageUrl: PH("ASUS", "Zenfone 11 Ultra"),
-    price: 899,
+    imageUrl: PH.titanium,
+    fallbackImageUrl: fb("ASUS", "Zenfone 11 Ultra"),
+    price: 749,
     year: 2024,
     colors: [
       { name: "Skyline Blue", hex: "#5a80b0" },
@@ -952,14 +973,14 @@ export const phones: Phone[] = [
     displayScore: 91,
   },
 
-  // ─── VIVO ────────────────────────────────────────────────────────────────────
+  // ── VIVO ─────────────────────────────────────────────────────────────────────
   {
     id: "vivo-x200-pro",
     name: "X200 Pro",
     brand: "vivo",
-    imageUrl: `${GSM}/vivo/vivo-x200-pro-1.jpg`,
-    fallbackImageUrl: PH("vivo", "X200 Pro"),
-    price: 1099,
+    imageUrl: PH.premiumRear,
+    fallbackImageUrl: fb("vivo", "X200 Pro"),
+    price: 949,
     year: 2025,
     colors: [
       { name: "Titanium Gray", hex: "#888" },
@@ -977,9 +998,9 @@ export const phones: Phone[] = [
     id: "vivo-x100-ultra",
     name: "X100 Ultra",
     brand: "vivo",
-    imageUrl: `${GSM}/vivo/vivo-x100-ultra-1.jpg`,
-    fallbackImageUrl: PH("vivo", "X100 Ultra"),
-    price: 999,
+    imageUrl: PH.darkAngle,
+    fallbackImageUrl: fb("vivo", "X100 Ultra"),
+    price: 799,
     year: 2024,
     colors: [
       { name: "White", hex: "#f0f0f0" },
@@ -993,14 +1014,14 @@ export const phones: Phone[] = [
     displayScore: 97,
   },
 
-  // ─── HONOR ───────────────────────────────────────────────────────────────────
+  // ── HONOR ─────────────────────────────────────────────────────────────────────
   {
     id: "honor-200-pro",
     name: "Honor 200 Pro",
     brand: "Honor",
-    imageUrl: `${GSM}/honor/honor-200-pro-1.jpg`,
-    fallbackImageUrl: PH("Honor", "200 Pro"),
-    price: 699,
+    imageUrl: PH.androidClean,
+    fallbackImageUrl: fb("Honor", "200 Pro"),
+    price: 549,
     year: 2024,
     colors: [
       { name: "Black", hex: "#111" },
@@ -1018,9 +1039,9 @@ export const phones: Phone[] = [
     id: "honor-magic-6-pro",
     name: "Honor Magic 6 Pro",
     brand: "Honor",
-    imageUrl: `${GSM}/honor/honor-magic-6-pro-1.jpg`,
-    fallbackImageUrl: PH("Honor", "Magic 6 Pro"),
-    price: 799,
+    imageUrl: PH.samsungDark,
+    fallbackImageUrl: fb("Honor", "Magic 6 Pro"),
+    price: 649,
     year: 2024,
     colors: [
       { name: "Vegan Leather Black", hex: "#1a1a1a" },
@@ -1035,14 +1056,14 @@ export const phones: Phone[] = [
     displayScore: 94,
   },
 
-  // ─── OPPO / REALME ───────────────────────────────────────────────────────────
+  // ── OPPO / REALME ──────────────────────────────────────────────────────────
   {
     id: "oppo-find-x8-pro",
     name: "Find X8 Pro",
     brand: "OPPO",
-    imageUrl: `${GSM}/oppo/oppo-find-x8-pro-1.jpg`,
-    fallbackImageUrl: PH("OPPO", "Find X8 Pro"),
-    price: 1099,
+    imageUrl: PH.premiumRear,
+    fallbackImageUrl: fb("OPPO", "Find X8 Pro"),
+    price: 949,
     year: 2024,
     colors: [
       { name: "Space Black", hex: "#111" },
@@ -1059,9 +1080,9 @@ export const phones: Phone[] = [
     id: "realme-gt-7-pro",
     name: "GT 7 Pro",
     brand: "Realme",
-    imageUrl: `${GSM}/realme/realme-gt-7-pro-1.jpg`,
-    fallbackImageUrl: PH("Realme", "GT 7 Pro"),
-    price: 699,
+    imageUrl: PH.blackPhone,
+    fallbackImageUrl: fb("Realme", "GT 7 Pro"),
+    price: 549,
     year: 2024,
     colors: [
       { name: "Mars Red", hex: "#8b2020" },
@@ -1075,14 +1096,14 @@ export const phones: Phone[] = [
     displayScore: 91,
   },
 
-  // ─── FAIRPHONE ───────────────────────────────────────────────────────────────
+  // ── FAIRPHONE ─────────────────────────────────────────────────────────────────
   {
     id: "fairphone-5",
     name: "Fairphone 5",
     brand: "Fairphone",
-    imageUrl: `${GSM}/fairphone/fairphone-5-1.jpg`,
-    fallbackImageUrl: PH("Fairphone", "5"),
-    price: 699,
+    imageUrl: PH.androidClean,
+    fallbackImageUrl: fb("Fairphone", "5"),
+    price: 599,
     year: 2023,
     colors: [
       { name: "Matte Black", hex: "#1a1a1a" },
@@ -1095,28 +1116,5 @@ export const phones: Phone[] = [
     battery: { capacity: "4200 mAh (replaceable)", charging: "30W wired", score: 80 },
     storage: ["256GB"],
     displayScore: 82,
-  },
-
-  // ─── SAMSUNG BUDGET ──────────────────────────────────────────────────────────
-  {
-    id: "galaxy-a56",
-    name: "Galaxy A56 5G",
-    brand: "Samsung",
-    imageUrl: `${GSM}/samsung/samsung-galaxy-a56-5g-1.jpg`,
-    fallbackImageUrl: PH("Samsung", "Galaxy A56"),
-    price: 449,
-    year: 2025,
-    colors: [
-      { name: "Awesome Graphite", hex: "#2b2f32" },
-      { name: "Awesome White", hex: "#f0f2f1" },
-      { name: "Awesome Blue", hex: "#4a6890" },
-      { name: "Awesome Pink", hex: "#d4a0b0" },
-    ],
-    display: { size: "6.7 inches", resolution: "2340 x 1080", type: "Super AMOLED", refreshRate: "120Hz" },
-    camera: { main: "50MP f/1.8 OIS", ultrawide: "12MP f/2.2", telephoto: "5MP f/2.4", video: "4K@30fps", score: 80 },
-    performance: { chipset: "Exynos 1580", ram: "8GB / 12GB", score: 79 },
-    battery: { capacity: "5000 mAh", charging: "45W wired", score: 90 },
-    storage: ["128GB", "256GB"],
-    displayScore: 86,
   },
 ];
