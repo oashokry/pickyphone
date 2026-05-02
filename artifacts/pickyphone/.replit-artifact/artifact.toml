@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "PickyPhone"
+version = "1.0.0"
+id = "artifacts/pickyphone"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23568
+
+[services.development]
+run = "pnpm --filter @workspace/pickyphone run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/pickyphone", "run", "build" ]
+publicDir = "artifacts/pickyphone/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23568"
+BASE_PATH = "/"
