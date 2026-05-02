@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import logoPath from "@assets/1777731629527_1777733390040.png";
+import logoPath from "@assets/logo_transparent.png";
 import Footer from "@/components/Footer";
 
 export default function Home() {
@@ -14,13 +14,11 @@ export default function Home() {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="flex flex-col items-center max-w-3xl"
         >
-          <div className="bg-card/50 p-4 rounded-3xl border border-border shadow-2xl shadow-primary/10 mb-10 backdrop-blur-sm">
-            <img 
-              src={logoPath} 
-              alt="PickyPhone Logo" 
-              className="w-24 h-24 object-contain"
-            />
-          </div>
+          <img
+            src={logoPath}
+            alt="PickyPhone Logo"
+            className="w-56 h-56 object-contain mb-6 drop-shadow-[0_0_40px_rgba(212,175,55,0.35)]"
+          />
           
           <h1 className="text-5xl md:text-7xl font-serif font-bold tracking-tight mb-6">
             PickyPhone <span className="text-primary italic font-light block mt-2">The Smart Choice</span>
