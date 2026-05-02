@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Phone } from "@/data/phones";
 import SpecRow from "./SpecRow";
 
@@ -13,6 +14,8 @@ interface Props {
 }
 
 export default function PhoneCard({ phone, winners }: Props) {
+  const [imgSrc, setImgSrc] = useState(phone.imageUrl);
+
   return (
     <div className="flex flex-col bg-card rounded-2xl border border-border shadow-lg hover:border-primary/30 transition-colors duration-500 overflow-hidden">
       
@@ -20,7 +23,12 @@ export default function PhoneCard({ phone, winners }: Props) {
       <div className="p-6 pb-0 flex flex-col items-center text-center">
         <div className="w-full aspect-[2/3] max-h-64 mb-6 relative flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-gradient-to-b from-background to-transparent opacity-50 rounded-xl" />
-          <img src={phone.imageUrl} alt={phone.name} className="h-full object-contain relative z-10 drop-shadow-2xl" />
+          <img
+            src={imgSrc}
+            alt={phone.name}
+            className="h-full object-contain relative z-10 drop-shadow-2xl"
+            onError={() => setImgSrc(phone.fallbackImageUrl)}
+          />
         </div>
         
         <span className="text-xs font-bold tracking-[0.2em] text-muted-foreground uppercase mb-2">{phone.brand}</span>
