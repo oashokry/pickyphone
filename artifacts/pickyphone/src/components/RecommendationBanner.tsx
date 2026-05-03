@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Trophy } from "lucide-react";
 import { Phone } from "@/data/phones";
 import PhoneIllustration from "./PhoneIllustration";
+import { WatchReviewButton } from "./ReviewButtons";
 
 interface Props {
   phone: Phone;
@@ -43,9 +44,10 @@ export default function RecommendationBanner({ phone, reason }: Props) {
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold mb-2 leading-tight">
             {phone.brand} <span className="text-primary">{phone.name}</span>
           </h2>
-          <p className="text-muted-foreground text-sm sm:text-base leading-relaxed max-w-2xl">
+          <p className="text-muted-foreground text-sm sm:text-base leading-relaxed max-w-2xl mb-4">
             {reason}
           </p>
+          <WatchReviewButton phone={phone} />
         </div>
 
         {/* Price callout */}

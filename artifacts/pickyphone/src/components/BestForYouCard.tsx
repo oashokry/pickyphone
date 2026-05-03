@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
+import { WatchReviewButton } from "./ReviewButtons";
 import { Phone } from "@/data/phones";
 import { UsageType } from "@/lib/scoring";
 import PhoneIllustration from "./PhoneIllustration";
@@ -114,6 +115,11 @@ export default function BestForYouCard({ phone, matchPct, reason, usageType, bud
                   <span className="font-semibold text-foreground">{value}</span>
                 </div>
               ))}
+            </div>
+
+            {/* Watch Reviews */}
+            <div className="flex justify-center md:justify-start mt-4">
+              <WatchReviewButton phone={phone} />
             </div>
           </div>
 

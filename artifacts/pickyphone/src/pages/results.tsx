@@ -7,6 +7,7 @@ import PhoneCard from "@/components/PhoneCard";
 import RecommendationBanner from "@/components/RecommendationBanner";
 import BestForYouCard from "@/components/BestForYouCard";
 import UpgradeSection from "@/components/UpgradeSection";
+import { WatchComparisonButton } from "@/components/ReviewButtons";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -114,10 +115,13 @@ export default function Results() {
             )}
 
             {/* Detailed comparison */}
-            <div className="mt-14 mb-5">
+            <div className="mt-14 mb-5 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
               <h2 className="text-2xl font-serif border-b border-border/50 pb-4 inline-block">
                 Detailed Comparison
               </h2>
+              <div className="pb-1">
+                <WatchComparisonButton phones={selectedPhones} />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
