@@ -11,6 +11,7 @@ import {
 import PhoneCard from "@/components/PhoneCard";
 import RecommendationBanner from "@/components/RecommendationBanner";
 import BestForYouCard from "@/components/BestForYouCard";
+import UpgradeSection from "@/components/UpgradeSection";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -18,33 +19,34 @@ import { Button } from "@/components/ui/button";
 export default function Results() {
   const [, setLocation] = useLocation();
   const search = useSearch();
-  const { selectedPhoneIds, priority: ctxPriority, budget: ctxBudget, usageType: ctxUsage } = useComparison();
+  const { selectedPhoneIds, priority: ctxPriority, budget: ctxBudget, usageType: ctxUsage, currentPhoneId: ctxCurrentId } = useComparison();
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
-  // Parse URL params (shared links or preferences page hand-off)
+  // Parse URL params (shared links or preferences hand-off)
   const params = new URLSearchParams(search);
-  const urlPhoneIds = params.get("phones")?.split(",").filter(Boolean) ?? [];
-  const urlPriority = params.get("priority") as Priority | null;
-  const urlBudgetRaw = params.get("budget");
-  const urlUsage = params.get("usage") as UsageType | null;
+  const urlPhoneIds   = params.get("phones")?.split(",").filter(Boolean) ?? [];
+  const urlPriority   = params.get("priority") as Priority | null;
+  const urlBudgetRaw  = params.get("budget");
+  const urlUsage      = params.get("usage") as UsageType | null;
+  const urlCurrentId  = params.get("current");
 
-  // Resolve active values: context if set, else URL params, else defaults
-  const activePhoneIds = selectedPhoneIds.some(id => id !== null) ? selectedPhoneIds : urlPhoneIds;
+  // Resolve active values — prefer context, fall back to URL params
+  const activePhoneIds  = selectedPhoneIds.some(id => id !== null) ? selectedPhoneIds : urlPhoneIds;
   const activePriority: Priority = ctxPriority ?? urlPriority ?? "balanced";
 
-  // Parse budget from URL param "500-1200"
   const urlBudget: [number, number] | null = urlBudgetRaw
     ? (() => {
         const parts = urlBudgetRaw.split("-").map(Number);
         return parts.length === 2 && !parts.some(isNaN) ? [parts[0], parts[1]] : null;
       })()
     : null;
-  const activeBudget: [number, number] = ctxBudget ?? urlBudget ?? [0, 2000];
-  const activeUsage: UsageType = ctxUsage ?? urlUsage ?? "Mixed";
+  const activeBudget: [number, number] = urlBudget ?? ctxBudget ?? [0, 2000];
+  const activeUsage: UsageType  = urlUsage  ?? ctxUsage  ?? "Mixed";
+  const activeCurrentId: string | null = urlCurrentId ?? ctxCurrentId ?? null;
 
-  // Determine if we have personalized preferences
-  const hasPrefs = !!(urlBudgetRaw && urlUsage);
+  const hasPrefs      = !!(urlBudgetRaw && urlUsage);
+  const currentPhone  = activeCurrentId ? dbPhones.find(p => p.id === activeCurrentId) ?? null : null;
 
   const selectedPhones = activePhoneIds
     .filter(id => id !== null)
@@ -52,24 +54,18 @@ export default function Results() {
     .filter(Boolean) as Phone[];
 
   useEffect(() => {
-    if (selectedPhones.length === 0) {
-      setLocation("/compare");
-      return;
-    }
-    const timer = setTimeout(() => setLoading(false), 1500);
-    return () => clearTimeout(timer);
+    if (selectedPhones.length === 0) { setLocation("/compare"); return; }
+    const t = setTimeout(() => setLoading(false), 1500);
+    return () => clearTimeout(t);
   }, [selectedPhones.length, setLocation]);
 
   if (selectedPhones.length === 0) return null;
 
-  // Compute match scores if preferences were provided
+  // Personalised scores
   const prefs: UserPreferences = { budget: activeBudget, usageType: activeUsage, priority: activePriority };
   const matchScores: Record<string, number> = {};
-  if (hasPrefs) {
-    selectedPhones.forEach(p => { matchScores[p.id] = scorePhone(p, prefs); });
-  }
+  if (hasPrefs) selectedPhones.forEach(p => { matchScores[p.id] = scorePhone(p, prefs); });
 
-  // Best match phone (highest score)
   const bestMatch = hasPrefs
     ? selectedPhones.reduce((best, p) => matchScores[p.id] > matchScores[best.id] ? p : best, selectedPhones[0])
     : null;
@@ -77,29 +73,30 @@ export default function Results() {
   const recommendation = !loading ? getBestPhone(selectedPhones, activePriority) : null;
 
   const winners = {
-    price: selectedPhones.reduce((min, p) => p.price < min.price ? p : min, selectedPhones[0]).id,
-    displayScore: selectedPhones.reduce((max, p) => p.displayScore > max.displayScore ? p : max, selectedPhones[0]).id,
-    cameraScore: selectedPhones.reduce((max, p) => p.camera.score > max.camera.score ? p : max, selectedPhones[0]).id,
-    performanceScore: selectedPhones.reduce((max, p) => p.performance.score > max.performance.score ? p : max, selectedPhones[0]).id,
-    batteryScore: selectedPhones.reduce((max, p) => p.battery.score > max.battery.score ? p : max, selectedPhones[0]).id,
+    price:            selectedPhones.reduce((m, p) => p.price < m.price ? p : m, selectedPhones[0]).id,
+    displayScore:     selectedPhones.reduce((m, p) => p.displayScore > m.displayScore ? p : m, selectedPhones[0]).id,
+    cameraScore:      selectedPhones.reduce((m, p) => p.camera.score > m.camera.score ? p : m, selectedPhones[0]).id,
+    performanceScore: selectedPhones.reduce((m, p) => p.performance.score > m.performance.score ? p : m, selectedPhones[0]).id,
+    batteryScore:     selectedPhones.reduce((m, p) => p.battery.score > m.battery.score ? p : m, selectedPhones[0]).id,
   };
 
   const handleShare = async () => {
-    const ids = selectedPhones.map(p => p.id).join(",");
-    const budgetStr = `${activeBudget[0]}-${activeBudget[1]}`;
-    const baseUrl = `${window.location.origin}${window.location.pathname}`;
+    const ids        = selectedPhones.map(p => p.id).join(",");
+    const budgetStr  = `${activeBudget[0]}-${activeBudget[1]}`;
+    const base       = `${window.location.origin}${window.location.pathname}`;
+    const currentParam = activeCurrentId ? `&current=${activeCurrentId}` : "";
     const shareUrl = hasPrefs
-      ? `${baseUrl}?phones=${ids}&priority=${activePriority}&budget=${budgetStr}&usage=${activeUsage}`
-      : `${baseUrl}?phones=${ids}&priority=${activePriority}`;
+      ? `${base}?phones=${ids}&priority=${activePriority}&budget=${budgetStr}&usage=${activeUsage}${currentParam}`
+      : `${base}?phones=${ids}&priority=${activePriority}${currentParam}`;
     try {
       await navigator.clipboard.writeText(shareUrl);
     } catch {
-      const input = document.createElement("input");
-      input.value = shareUrl;
-      document.body.appendChild(input);
-      input.select();
+      const el = document.createElement("input");
+      el.value = shareUrl;
+      document.body.appendChild(el);
+      el.select();
       document.execCommand("copy");
-      document.body.removeChild(input);
+      document.body.removeChild(el);
     }
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
@@ -113,16 +110,8 @@ export default function Results() {
             <ArrowLeft className="w-4 h-4 mr-2" /> Back
           </Link>
           <span className="font-serif text-xl font-bold tracking-tight text-primary">PickyPhone.</span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleShare}
-            className={`flex items-center gap-2 text-sm border transition-all duration-300 ${
-              copied
-                ? "border-primary text-primary bg-primary/10"
-                : "border-border text-muted-foreground hover:border-primary/50 hover:text-primary"
-            }`}
-          >
+          <Button variant="outline" size="sm" onClick={handleShare}
+            className={`flex items-center gap-2 text-sm border transition-all duration-300 ${copied ? "border-primary text-primary bg-primary/10" : "border-border text-muted-foreground hover:border-primary/50 hover:text-primary"}`}>
             {copied ? <><Check className="w-4 h-4" />Link Copied!</> : <><Share2 className="w-4 h-4" />Share</>}
           </Button>
         </div>
@@ -130,18 +119,17 @@ export default function Results() {
 
       <main className="flex-1 max-w-7xl mx-auto w-full p-4 md:p-8">
         {loading ? (
-          <div className="space-y-12 animate-pulse">
-            <Skeleton className="h-48 w-full rounded-2xl bg-card" />
+          <div className="space-y-8 animate-pulse">
+            <Skeleton className="h-52 w-full rounded-2xl bg-card" />
+            {currentPhone && <Skeleton className="h-64 w-full rounded-2xl bg-card" />}
             <div className={`grid grid-cols-1 md:grid-cols-${selectedPhones.length} gap-6`}>
-              {selectedPhones.map(p => (
-                <Skeleton key={p.id} className="h-[800px] rounded-2xl bg-card" />
-              ))}
+              {selectedPhones.map(p => <Skeleton key={p.id} className="h-[800px] rounded-2xl bg-card" />)}
             </div>
           </div>
         ) : (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
 
-            {/* Best For You card (personalized) */}
+            {/* Best For You */}
             {hasPrefs && bestMatch && (
               <BestForYouCard
                 phone={bestMatch}
@@ -152,28 +140,30 @@ export default function Results() {
               />
             )}
 
-            {/* Legacy best-choice banner (no preferences) */}
+            {/* Legacy recommendation (no preferences) */}
             {!hasPrefs && recommendation && (
               <RecommendationBanner phone={recommendation.phone} reason={recommendation.reason} />
             )}
 
+            {/* Upgrade analysis */}
+            {currentPhone && (
+              <UpgradeSection
+                currentPhone={currentPhone}
+                candidates={selectedPhones.filter(p => p.id !== currentPhone.id)}
+              />
+            )}
+
+            {/* Detailed comparison */}
             <div className="mt-16 mb-6">
               <h2 className="text-2xl font-serif border-b border-border/50 pb-4 inline-block">Detailed Comparison</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {selectedPhones.map((phone, i) => (
-                <motion.div
-                  key={phone.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.15 + 0.3, duration: 0.6 }}
-                >
-                  <PhoneCard
-                    phone={phone}
-                    winners={winners}
-                    matchPct={hasPrefs ? matchScores[phone.id] : undefined}
-                  />
+                <motion.div key={phone.id}
+                  initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.15 + 0.3, duration: 0.6 }}>
+                  <PhoneCard phone={phone} winners={winners} matchPct={hasPrefs ? matchScores[phone.id] : undefined} />
                 </motion.div>
               ))}
             </div>

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from "react";
-import { Phone, Priority, UsageType } from "@/lib/recommendation";
+import { Priority, UsageType } from "@/lib/recommendation";
 
 interface ComparisonContextType {
   slotsCount: number;
@@ -12,6 +12,8 @@ interface ComparisonContextType {
   setBudget: (b: [number, number]) => void;
   usageType: UsageType;
   setUsageType: (u: UsageType) => void;
+  currentPhoneId: string | null;
+  setCurrentPhoneId: (id: string | null) => void;
 }
 
 const ComparisonContext = createContext<ComparisonContextType | undefined>(undefined);
@@ -22,6 +24,7 @@ export function ComparisonProvider({ children }: { children: ReactNode }) {
   const [priority, setPriority] = useState<Priority>("balanced");
   const [budget, setBudget] = useState<[number, number]>([200, 1200]);
   const [usageType, setUsageType] = useState<UsageType>("Mixed");
+  const [currentPhoneId, setCurrentPhoneId] = useState<string | null>(null);
 
   const handleSetSlotsCount = (count: number) => {
     setSlotsCount(count);
@@ -47,6 +50,7 @@ export function ComparisonProvider({ children }: { children: ReactNode }) {
       priority, setPriority,
       budget, setBudget,
       usageType, setUsageType,
+      currentPhoneId, setCurrentPhoneId,
     }}>
       {children}
     </ComparisonContext.Provider>
