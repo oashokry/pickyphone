@@ -3,23 +3,33 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ComparisonProvider } from "@/context/ComparisonContext";
+import ScrollToTop from "@/components/ScrollToTop";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Compare from "@/pages/compare";
 import Preferences from "@/pages/preferences";
 import Results from "@/pages/results";
+import Browse from "@/pages/browse";
+import PhoneDetail from "@/pages/phone-detail";
+import Analyze from "@/pages/analyze";
 
 const queryClient = new QueryClient();
 
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/compare" component={Compare} />
-      <Route path="/preferences" component={Preferences} />
-      <Route path="/results" component={Results} />
-      <Route component={NotFound} />
-    </Switch>
+    <>
+      <ScrollToTop />
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/compare" component={Compare} />
+        <Route path="/preferences" component={Preferences} />
+        <Route path="/results" component={Results} />
+        <Route path="/browse" component={Browse} />
+        <Route path="/phone/:id" component={PhoneDetail} />
+        <Route path="/analyze/:id" component={Analyze} />
+        <Route component={NotFound} />
+      </Switch>
+    </>
   );
 }
 

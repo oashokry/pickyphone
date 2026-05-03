@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, BarChart3, Layers, Zap } from "lucide-react";
+import { ArrowRight, BarChart3, Layers, Zap, Search } from "lucide-react";
 import logoPath from "@assets/logo_transparent.png";
 import Footer from "@/components/Footer";
 
@@ -20,6 +20,11 @@ const FEATURES = [
     icon: Zap,
     title: "Smart Verdicts",
     desc: "Tell us what matters—camera, battery, price—and we'll declare a clear winner.",
+  },
+  {
+    icon: Search,
+    title: "Browse & Analyze",
+    desc: "Explore all 50+ phones and get a personalized \"Is It Worth It?\" verdict for any device.",
   },
 ];
 
@@ -76,20 +81,37 @@ export default function Home() {
             Compare the world's best smartphones side by side. Find your perfect match in under two minutes.
           </p>
 
-          <Link href="/compare">
-            <Button
-              size="lg"
-              data-testid="button-start-comparing"
-              className="group rounded-full px-10 py-7 text-lg font-semibold
-                bg-primary text-primary-foreground
-                shadow-[0_0_40px_-10px_hsl(var(--primary))]
-                hover:shadow-[0_0_65px_-8px_hsl(var(--primary))]
-                hover:bg-primary/90 transition-all duration-500"
-            >
-              Start Comparing
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-            </Button>
-          </Link>
+          {/* Primary CTAs */}
+          <div className="flex flex-col sm:flex-row gap-4 items-center">
+            <Link href="/compare">
+              <Button
+                size="lg"
+                data-testid="button-start-comparing"
+                className="group rounded-full px-10 py-7 text-lg font-semibold
+                  bg-primary text-primary-foreground
+                  shadow-[0_0_40px_-10px_hsl(var(--primary))]
+                  hover:shadow-[0_0_65px_-8px_hsl(var(--primary))]
+                  hover:bg-primary/90 transition-all duration-500"
+              >
+                Start Comparing
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+              </Button>
+            </Link>
+
+            <Link href="/browse">
+              <Button
+                size="lg"
+                variant="outline"
+                className="group rounded-full px-8 py-7 text-base font-semibold
+                  border-border text-muted-foreground
+                  hover:border-primary/50 hover:text-primary hover:bg-primary/8
+                  transition-all duration-400"
+              >
+                <Search className="mr-2 w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
+                Browse Phones
+              </Button>
+            </Link>
+          </div>
         </motion.div>
 
         {/* ── Feature cards ── */}
@@ -97,7 +119,7 @@ export default function Home() {
           variants={container}
           initial="hidden"
           animate="show"
-          className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-20 max-w-3xl w-full text-left"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-20 max-w-5xl w-full text-left"
         >
           {FEATURES.map(({ icon: Icon, title, desc }) => (
             <motion.div
