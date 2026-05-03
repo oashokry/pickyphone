@@ -16,36 +16,11 @@ import Analyze from "@/pages/analyze";
 const queryClient = new QueryClient();
 
 function Router() {
-  return (
-    <>
-      <ScrollToTop />
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/compare" component={Compare} />
-        <Route path="/preferences" component={Preferences} />
-        <Route path="/results" component={Results} />
-        <Route path="/browse" component={Browse} />
-        <Route path="/phone/:id" component={PhoneDetail} />
-        <Route path="/analyze/:id" component={Analyze} />
-        <Route component={NotFound} />
-      </Switch>
-    </>
-  );
+  return <><ScrollToTop /><Switch><Route path="/" component={Home} /><Route path="/compare" component={Compare} /><Route path="/preferences" component={Preferences} /><Route path="/results" component={Results} /><Route path="/browse" component={Browse} /><Route path="/phones/:id" component={PhoneDetail} /><Route path="/phone/:id" component={PhoneDetail} /><Route path="/analyze/:id" component={Analyze} /><Route component={NotFound} /></Switch></>;
 }
 
 function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <ComparisonProvider>
-        <TooltipProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <Router />
-          </WouterRouter>
-          <Toaster />
-        </TooltipProvider>
-      </ComparisonProvider>
-    </QueryClientProvider>
-  );
+  return <QueryClientProvider client={queryClient}><ComparisonProvider><TooltipProvider><WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>{/* Routes */}<Router /></WouterRouter><Toaster /></TooltipProvider></ComparisonProvider></QueryClientProvider>;
 }
 
 export default App;

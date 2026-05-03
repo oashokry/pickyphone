@@ -7,382 +7,49 @@ import { scorePhone, Priority, UsageType } from "@/lib/scoring";
 import PhoneIllustration from "@/components/PhoneIllustration";
 import { WatchReviewButton } from "@/components/ReviewButtons";
 import Footer from "@/components/Footer";
+import Seo from "@/components/Seo";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import { analyzeDescription, analyzeKeywords, analyzeTitle, getCanonicalUrl, phonePath } from "@/lib/seo";
 
 const USAGE_TYPES: { value: UsageType; label: string; desc: string }[] = [
   { value: "Photography", label: "Photography", desc: "Shooting photos & videos" },
-  { value: "Gaming",      label: "Gaming",      desc: "Mobile games & performance" },
-  { value: "Work",        label: "Work",        desc: "Productivity & multitasking" },
-  { value: "Casual",      label: "Casual",      desc: "Everyday browsing & social" },
-  { value: "Mixed",       label: "Mixed Use",   desc: "A bit of everything" },
+  { value: "Gaming", label: "Gaming", desc: "Mobile games & performance" },
+  { value: "Work", label: "Work", desc: "Productivity & multitasking" },
+  { value: "Casual", label: "Casual", desc: "Everyday browsing & social" },
+  { value: "Mixed", label: "Mixed Use", desc: "A bit of everything" },
 ];
-
 const PRIORITIES: { value: Priority; label: string }[] = [
-  { value: "camera",      label: "Camera" },
+  { value: "camera", label: "Camera" },
   { value: "performance", label: "Performance" },
-  { value: "battery",     label: "Battery" },
-  { value: "display",     label: "Display" },
-  { value: "price",       label: "Price / Value" },
-  { value: "balanced",    label: "Balanced" },
+  { value: "battery", label: "Battery" },
+  { value: "display", label: "Display" },
+  { value: "price", label: "Price / Value" },
+  { value: "balanced", label: "Balanced" },
 ];
-
 const BUDGET_PRESETS: { label: string; range: [number, number] }[] = [
-  { label: "Budget  (< $500)",    range: [0, 499] },
-  { label: "Mid-range ($500–$800)",   range: [500, 800] },
-  { label: "Premium ($800–$1,100)",   range: [800, 1100] },
-  { label: "Flagship (> $1,100)",     range: [1100, 2500] },
+  { label: "Budget  (< $500)", range: [0, 499] },
+  { label: "Mid-range ($500–$800)", range: [500, 800] },
+  { label: "Premium ($800–$1,100)", range: [800, 1100] },
+  { label: "Flagship (> $1,100)", range: [1100, 2500] },
 ];
-
 type Verdict = "Worth It" | "Depends" | "Not Worth It";
-
-function verdictDetails(pct: number): { verdict: Verdict; color: string; icon: typeof CheckCircle2; explanation: string } {
-  if (pct >= 78) return {
-    verdict: "Worth It",
-    color: "text-emerald-400",
-    icon: CheckCircle2,
-    explanation: `At ${pct}% match, this phone strongly aligns with your priorities. It delivers where it counts for you.`,
-  };
-  if (pct >= 58) return {
-    verdict: "Depends",
-    color: "text-amber-400",
-    icon: AlertCircle,
-    explanation: `A ${pct}% match — solid in some areas but not your perfect fit. Consider if the trade-offs are acceptable.`,
-  };
-  return {
-    verdict: "Not Worth It",
-    color: "text-red-400",
-    icon: XCircle,
-    explanation: `Only ${pct}% match for your needs. There are better options at this price point for what you value.`,
-  };
-}
-
-function peerContext(phone: typeof phones[0], pct: number, usage: UsageType, priority: Priority): string {
-  const prefs = { budget: [phone.price * 0.8, phone.price * 1.2] as [number, number], usageType: usage, priority };
-  const peers = phones
-    .filter(p => p.id !== phone.id && Math.abs(p.price - phone.price) <= phone.price * 0.25)
-    .map(p => ({ phone: p, score: scorePhone(p, prefs) }))
-    .sort((a, b) => b.score - a.score);
-
-  if (peers.length === 0) return "";
-  const better = peers.filter(p => p.score > pct).length;
-  if (better === 0) return `It outperforms all ${peers.length} similarly-priced alternatives for your use case.`;
-  if (better <= 2) return `Only ${better} phone${better > 1 ? "s" : ""} in this price range score${better === 1 ? "s" : ""} higher for your needs.`;
-  return `${better} similarly-priced phones score higher for your needs — worth comparing before deciding.`;
-}
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
-};
-
+function verdictDetails(pct: number): { verdict: Verdict; color: string; icon: typeof CheckCircle2; explanation: string } { if (pct >= 78) return { verdict: "Worth It", color: "text-emerald-400", icon: CheckCircle2, explanation: `At ${pct}% match, this phone strongly aligns with your priorities. It delivers where it counts for you.` }; if (pct >= 58) return { verdict: "Depends", color: "text-amber-400", icon: AlertCircle, explanation: `A ${pct}% match — solid in some areas but not your perfect fit. Consider if the trade-offs are acceptable.` }; return { verdict: "Not Worth It", color: "text-red-400", icon: XCircle, explanation: `Only ${pct}% match for your needs. There are better options at this price point for what you value.` }; }
+function peerContext(phone: typeof phones[0], pct: number, usage: UsageType, priority: Priority): string { const prefs = { budget: [phone.price * 0.8, phone.price * 1.2] as [number, number], usageType: usage, priority }; const peers = phones.filter(p => p.id !== phone.id && Math.abs(p.price - phone.price) <= phone.price * 0.25).map(p => ({ phone: p, score: scorePhone(p, prefs) })).sort((a, b) => b.score - a.score); if (peers.length === 0) return ""; const better = peers.filter(p => p.score > pct).length; if (better === 0) return `It outperforms all ${peers.length} similarly-priced alternatives for your use case.`; if (better <= 2) return `Only ${better} phone${better > 1 ? "s" : ""} in this price range score${better === 1 ? "s" : ""} higher for your needs.`; return `${better} similarly-priced phones score higher for your needs — worth comparing before deciding.`; }
+const fadeUp = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } } };
 export default function Analyze() {
   const params = useParams<{ id: string }>();
   const phone = phones.find(p => p.id === params.id);
-
   const [step, setStep] = useState(0);
   const [budgetIdx, setBudgetIdx] = useState<number | null>(null);
   const [usage, setUsage] = useState<UsageType | null>(null);
   const [priority, setPriority] = useState<Priority | null>(null);
   const [submitted, setSubmitted] = useState(false);
-
-  const canNext = [
-    budgetIdx !== null,
-    usage !== null,
-    priority !== null,
-  ];
-
-  const matchPct = useMemo(() => {
-    if (!submitted || !phone || budgetIdx === null || !usage || !priority) return null;
-    const prefs = { budget: BUDGET_PRESETS[budgetIdx].range, usageType: usage, priority };
-    return scorePhone(phone, prefs);
-  }, [submitted, phone, budgetIdx, usage, priority]);
-
+  const canNext = [budgetIdx !== null, usage !== null, priority !== null];
+  const matchPct = useMemo(() => { if (!submitted || !phone || budgetIdx === null || !usage || !priority) return null; const prefs = { budget: BUDGET_PRESETS[budgetIdx].range, usageType: usage, priority }; return scorePhone(phone, prefs); }, [submitted, phone, budgetIdx, usage, priority]);
   const verdict = matchPct !== null ? verdictDetails(matchPct) : null;
-  const peer = (matchPct !== null && phone && usage && priority)
-    ? peerContext(phone, matchPct, usage, priority)
-    : "";
-
-  const reset = () => {
-    setStep(0);
-    setBudgetIdx(null);
-    setUsage(null);
-    setPriority(null);
-    setSubmitted(false);
-  };
-
-  if (!phone) {
-    return (
-      <div className="min-h-[100dvh] flex flex-col bg-background text-foreground items-center justify-center">
-        <p className="text-muted-foreground mb-4">Phone not found.</p>
-        <Link href="/browse" className="text-primary underline text-sm">← Back to Browse</Link>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-[100dvh] flex flex-col bg-background text-foreground">
-      {/* Nav */}
-      <header className="border-b border-border/40 px-5 py-4 flex items-center gap-4 sticky top-0 z-50 bg-background/80 backdrop-blur-xl">
-        <Link href={`/phone/${phone.id}`}>
-          <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Back</span>
-          </button>
-        </Link>
-        <Link href="/" className="font-serif text-xl font-bold tracking-tight text-primary mx-auto">PickyPhone.</Link>
-        <div className="w-16 hidden sm:block" />
-      </header>
-
-      <main className="flex-1 max-w-2xl mx-auto w-full px-4 sm:px-6 py-8 md:py-12">
-
-        {/* Phone mini-hero */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-          className="flex items-center gap-4 p-4 rounded-2xl border border-border bg-card mb-8"
-        >
-          <div className="w-14 h-20 shrink-0">
-            <PhoneIllustration brand={phone.brand} name={phone.name} />
-          </div>
-          <div>
-            <p className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">{phone.brand}</p>
-            <h2 className="font-serif font-bold text-lg">{phone.name}</h2>
-            <p className="text-primary font-semibold">${phone.price.toLocaleString()}</p>
-          </div>
-          <div className="ml-auto text-right">
-            <p className="text-xs text-muted-foreground font-medium">Is It</p>
-            <p className="font-serif font-bold text-primary text-lg">Worth It?</p>
-          </div>
-        </motion.div>
-
-        <AnimatePresence mode="wait">
-          {!submitted ? (
-            <motion.div key="questionnaire" initial="hidden" animate="show" exit={{ opacity: 0 }} variants={fadeUp}>
-
-              {/* Progress bar */}
-              <div className="flex gap-1.5 mb-8">
-                {[0, 1, 2].map(i => (
-                  <div
-                    key={i}
-                    className={`h-1 flex-1 rounded-full transition-all duration-500 ${
-                      i <= step ? "bg-primary" : "bg-border"
-                    }`}
-                  />
-                ))}
-              </div>
-
-              <AnimatePresence mode="wait">
-                {step === 0 && (
-                  <motion.div key="step0" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
-                    <p className="text-xs font-bold tracking-widest text-primary uppercase mb-2">Step 1 of 3</p>
-                    <h2 className="text-2xl font-serif font-bold mb-1">What's your budget?</h2>
-                    <p className="text-muted-foreground text-sm mb-6">How much are you willing to spend on your next phone?</p>
-                    <div className="space-y-3">
-                      {BUDGET_PRESETS.map((b, i) => (
-                        <button
-                          key={b.label}
-                          onClick={() => setBudgetIdx(i)}
-                          className={`w-full text-left px-5 py-4 rounded-xl border transition-all duration-300 ${
-                            budgetIdx === i
-                              ? "border-primary bg-primary/10 text-primary shadow-[0_0_12px_-4px_hsl(var(--primary)/0.35)]"
-                              : "border-border bg-card text-foreground hover:border-primary/40"
-                          }`}
-                        >
-                          <span className="font-medium">{b.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-
-                {step === 1 && (
-                  <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
-                    <p className="text-xs font-bold tracking-widest text-primary uppercase mb-2">Step 2 of 3</p>
-                    <h2 className="text-2xl font-serif font-bold mb-1">How do you use your phone?</h2>
-                    <p className="text-muted-foreground text-sm mb-6">Choose the style that best describes you.</p>
-                    <div className="space-y-3">
-                      {USAGE_TYPES.map(u => (
-                        <button
-                          key={u.value}
-                          onClick={() => setUsage(u.value)}
-                          className={`w-full text-left px-5 py-4 rounded-xl border transition-all duration-300 ${
-                            usage === u.value
-                              ? "border-primary bg-primary/10 text-primary shadow-[0_0_12px_-4px_hsl(var(--primary)/0.35)]"
-                              : "border-border bg-card text-foreground hover:border-primary/40"
-                          }`}
-                        >
-                          <span className="font-medium block">{u.label}</span>
-                          <span className="text-xs text-muted-foreground">{u.desc}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-
-                {step === 2 && (
-                  <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
-                    <p className="text-xs font-bold tracking-widest text-primary uppercase mb-2">Step 3 of 3</p>
-                    <h2 className="text-2xl font-serif font-bold mb-1">What matters most to you?</h2>
-                    <p className="text-muted-foreground text-sm mb-6">We'll weigh your top priority heavily.</p>
-                    <div className="grid grid-cols-2 gap-3">
-                      {PRIORITIES.map(p => (
-                        <button
-                          key={p.value}
-                          onClick={() => setPriority(p.value)}
-                          className={`text-center px-4 py-4 rounded-xl border transition-all duration-300 ${
-                            priority === p.value
-                              ? "border-primary bg-primary/10 text-primary shadow-[0_0_12px_-4px_hsl(var(--primary)/0.35)]"
-                              : "border-border bg-card text-foreground hover:border-primary/40"
-                          }`}
-                        >
-                          <span className="font-medium text-sm">{p.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Nav buttons */}
-              <div className="flex justify-between mt-8 gap-3">
-                {step > 0 ? (
-                  <button
-                    onClick={() => setStep(s => s - 1)}
-                    className="flex items-center gap-2 px-5 py-3 rounded-full border border-border text-sm text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all"
-                  >
-                    <ArrowLeft className="w-4 h-4" /> Back
-                  </button>
-                ) : <div />}
-
-                {step < 2 ? (
-                  <button
-                    onClick={() => setStep(s => s + 1)}
-                    disabled={!canNext[step]}
-                    className="flex items-center gap-2 px-7 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm
-                      hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed
-                      shadow-[0_0_20px_-5px_hsl(var(--primary)/0.5)] transition-all"
-                  >
-                    Next <ArrowRight className="w-4 h-4" />
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setSubmitted(true)}
-                    disabled={!canNext[2]}
-                    className="flex items-center gap-2 px-7 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm
-                      hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed
-                      shadow-[0_0_20px_-5px_hsl(var(--primary)/0.5)] transition-all"
-                  >
-                    Analyze <ArrowRight className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div key="results" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}>
-              {verdict && matchPct !== null && (
-                <>
-                  {/* Verdict card */}
-                  <div className={`rounded-3xl border p-8 text-center mb-6 relative overflow-hidden ${
-                    verdict.verdict === "Worth It"     ? "border-emerald-500/30 bg-emerald-500/5" :
-                    verdict.verdict === "Depends"      ? "border-amber-400/30 bg-amber-400/5" :
-                                                         "border-red-500/30 bg-red-500/5"
-                  }`}>
-                    {/* Ambient glow */}
-                    <div className={`absolute inset-0 pointer-events-none ${
-                      verdict.verdict === "Worth It" ? "bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,hsl(142,76%,36%,0.10),transparent)]" :
-                      verdict.verdict === "Depends"  ? "bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,hsl(43,96%,56%,0.10),transparent)]" :
-                                                        "bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,hsl(0,84%,60%,0.10),transparent)]"
-                    }`} />
-
-                    <verdict.icon className={`w-12 h-12 mx-auto mb-4 ${verdict.color}`} />
-
-                    <p className={`text-4xl sm:text-5xl font-serif font-bold mb-2 ${verdict.color}`}>
-                      {verdict.verdict === "Worth It" ? "✅ Worth It" :
-                       verdict.verdict === "Depends"  ? "⚠️ Depends" :
-                                                         "❌ Not Worth It"}
-                    </p>
-
-                    {/* Match ring */}
-                    <div className="flex items-center justify-center mt-4 mb-5">
-                      <div className="relative w-28 h-28">
-                        <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                          <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="8" className="text-border" />
-                          <motion.circle
-                            cx="50" cy="50" r="40" fill="none"
-                            stroke={verdict.verdict === "Worth It" ? "#34d399" : verdict.verdict === "Depends" ? "#fbbf24" : "#f87171"}
-                            strokeWidth="8"
-                            strokeLinecap="round"
-                            strokeDasharray={`${2 * Math.PI * 40}`}
-                            strokeDashoffset={`${2 * Math.PI * 40 * (1 - matchPct / 100)}`}
-                            initial={{ strokeDashoffset: `${2 * Math.PI * 40}` }}
-                            animate={{ strokeDashoffset: `${2 * Math.PI * 40 * (1 - matchPct / 100)}` }}
-                            transition={{ duration: 1.1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                          />
-                        </svg>
-                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                          <span className={`text-2xl font-bold ${verdict.color}`}>{matchPct}%</span>
-                          <span className="text-[10px] text-muted-foreground">match</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <p className="text-sm text-foreground/80 max-w-sm mx-auto leading-relaxed">
-                      {verdict.explanation}
-                    </p>
-
-                    {peer && (
-                      <p className="text-xs text-muted-foreground mt-3 max-w-xs mx-auto leading-relaxed">
-                        {peer}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Preference summary */}
-                  <div className="rounded-2xl border border-border bg-card p-5 mb-6">
-                    <h3 className="text-xs font-serif font-bold text-primary uppercase tracking-widest mb-3">Your Preferences</h3>
-                    <div className="grid grid-cols-3 gap-3 text-center">
-                      <div>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Budget</p>
-                        <p className="text-sm font-semibold">{budgetIdx !== null ? BUDGET_PRESETS[budgetIdx].label.split("(")[0].trim() : "—"}</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Usage</p>
-                        <p className="text-sm font-semibold">{usage}</p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Priority</p>
-                        <p className="text-sm font-semibold capitalize">{priority}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <button
-                      onClick={reset}
-                      className="flex-1 flex items-center justify-center gap-2 px-5 py-3.5 rounded-full border border-border text-sm text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all"
-                    >
-                      <RotateCcw className="w-4 h-4" /> Try Again
-                    </button>
-
-                    <Link href={`/phone/${phone.id}`} className="flex-1">
-                      <button className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-full border border-primary/40 text-primary text-sm font-medium hover:bg-primary/10 transition-all">
-                        View Full Specs
-                      </button>
-                    </Link>
-
-                    <div className="flex justify-center">
-                      <WatchReviewButton phone={phone} />
-                    </div>
-                  </div>
-                </>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </main>
-
-      <Footer />
-    </div>
-  );
+  const peer = matchPct !== null && phone && usage && priority ? peerContext(phone, matchPct, usage, priority) : "";
+  const url = phone ? getCanonicalUrl(`/analyze/${phone.id}`) : getCanonicalUrl("/analyze");
+  const reset = () => { setStep(0); setBudgetIdx(null); setUsage(null); setPriority(null); setSubmitted(false); };
+  if (!phone) return <div className="min-h-[100dvh] flex flex-col bg-background text-foreground items-center justify-center"><p className="text-muted-foreground mb-4">Phone not found.</p><Link href="/browse" className="text-primary underline text-sm">← Back to Browse</Link></div>;
+  return <div className="min-h-[100dvh] flex flex-col bg-background text-foreground"><Seo title={analyzeTitle(phone)} description={analyzeDescription(phone)} keywords={analyzeKeywords(phone)} url={url} canonical={url} image={phone.imageUrl} /><header className="border-b border-border/40 px-5 py-4 flex items-center gap-4 sticky top-0 z-50 bg-background/80 backdrop-blur-xl"><Link href={`/phones/${phone.id}`}><button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"><ArrowLeft className="w-4 h-4" /><span className="hidden sm:inline">Back</span></button></Link><Link href="/" className="font-serif text-xl font-bold tracking-tight text-primary mx-auto">PickyPhone.</Link><div className="w-16 hidden sm:block" /></header><main className="flex-1 max-w-2xl mx-auto w-full px-4 sm:px-6 py-8 md:py-12"><Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Phones", href: "/browse" }, { name: phone.name, href: phonePath(phone.id) }, { name: "Analyze", href: `/analyze/${phone.id}` }]} /><motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }} className="flex items-center gap-4 p-4 rounded-2xl border border-border bg-card mb-8"><div className="w-14 h-20 shrink-0"><PhoneIllustration brand={phone.brand} name={phone.name} /></div><div><p className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">{phone.brand}</p><h2 className="font-serif font-bold text-lg">{phone.name}</h2><p className="text-primary font-semibold">${phone.price.toLocaleString()}</p></div><div className="ml-auto text-right"><p className="text-xs text-muted-foreground font-medium">Is It</p><p className="font-serif font-bold text-primary text-lg">Worth It?</p></div></motion.div><AnimatePresence mode="wait">{!submitted ? <motion.div key="questionnaire" initial="hidden" animate="show" exit={{ opacity: 0 }} variants={fadeUp}><div className="flex gap-1.5 mb-8">{[0, 1, 2].map(i => <div key={i} className={`h-1 flex-1 rounded-full transition-all duration-500 ${i <= step ? "bg-primary" : "bg-border"}`} />)}</div><AnimatePresence mode="wait">{step === 0 && <motion.div key="step0" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}><p className="text-xs font-bold tracking-widest text-primary uppercase mb-2">Step 1 of 3</p><h2 className="text-2xl font-serif font-bold mb-1">What's your budget?</h2><p className="text-muted-foreground text-sm mb-6">How much are you willing to spend on your next phone?</p><div className="space-y-3">{BUDGET_PRESETS.map((b, i) => <button key={b.label} onClick={() => setBudgetIdx(i)} className={`w-full text-left px-5 py-4 rounded-xl border transition-all duration-300 ${budgetIdx === i ? "border-primary bg-primary/10 text-primary shadow-[0_0_12px_-4px_hsl(var(--primary)/0.35)]" : "border-border bg-card text-foreground hover:border-primary/40"}`}><span className="font-medium">{b.label}</span></button>)}</div></motion.div>}{step === 1 && <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}><p className="text-xs font-bold tracking-widest text-primary uppercase mb-2">Step 2 of 3</p><h2 className="text-2xl font-serif font-bold mb-1">How do you use your phone?</h2><p className="text-muted-foreground text-sm mb-6">Choose the style that best describes you.</p><div className="space-y-3">{USAGE_TYPES.map(u => <button key={u.value} onClick={() => setUsage(u.value)} className={`w-full text-left px-5 py-4 rounded-xl border transition-all duration-300 ${usage === u.value ? "border-primary bg-primary/10 text-primary shadow-[0_0_12px_-4px_hsl(var(--primary)/0.35)]" : "border-border bg-card text-foreground hover:border-primary/40"}`}><span className="font-medium block">{u.label}</span><span className="text-xs text-muted-foreground">{u.desc}</span></button>)}</div></motion.div>}{step === 2 && <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}><p className="text-xs font-bold tracking-widest text-primary uppercase mb-2">Step 3 of 3</p><h2 className="text-2xl font-serif font-bold mb-1">What matters most to you?</h2><p className="text-muted-foreground text-sm mb-6">We'll weigh your top priority heavily.</p><div className="grid grid-cols-2 gap-3">{PRIORITIES.map(p => <button key={p.value} onClick={() => setPriority(p.value)} className={`text-center px-4 py-4 rounded-xl border transition-all duration-300 ${priority === p.value ? "border-primary bg-primary/10 text-primary shadow-[0_0_12px_-4px_hsl(var(--primary)/0.35)]" : "border-border bg-card text-foreground hover:border-primary/40"}`}><span className="font-medium text-sm">{p.label}</span></button>)}</div></motion.div>}</AnimatePresence><div className="flex justify-between mt-8 gap-3">{step > 0 ? <button onClick={() => setStep(s => s - 1)} className="flex items-center gap-2 px-5 py-3 rounded-full border border-border text-sm text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all"><ArrowLeft className="w-4 h-4" /> Back</button> : <div />}{step < 2 ? <button onClick={() => setStep(s => s + 1)} disabled={!canNext[step]} className="flex items-center gap-2 px-7 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_20px_-5px_hsl(var(--primary)/0.5)] transition-all">Next <ArrowRight className="w-4 h-4" /></button> : <button onClick={() => setSubmitted(true)} disabled={!canNext[2]} className="flex items-center gap-2 px-7 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_20px_-5px_hsl(var(--primary)/0.5)] transition-all">Analyze <ArrowRight className="w-4 h-4" /></button>}</div></motion.div> : <motion.div key="results" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}>{verdict && matchPct !== null && <><div className={`rounded-3xl border p-8 text-center mb-6 relative overflow-hidden ${verdict.verdict === "Worth It" ? "border-emerald-500/30 bg-emerald-500/5" : verdict.verdict === "Depends" ? "border-amber-400/30 bg-amber-400/5" : "border-red-500/30 bg-red-500/5"}`}><div className={`absolute inset-0 pointer-events-none ${verdict.verdict === "Worth It" ? "bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,hsl(142,76%,36%,0.10),transparent)]" : verdict.verdict === "Depends" ? "bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,hsl(43,96%,56%,0.10),transparent)]" : "bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,hsl(0,84%,60%,0.10),transparent)]"}`} /><verdict.icon className={`w-12 h-12 mx-auto mb-4 ${verdict.color}`} /><p className={`text-4xl sm:text-5xl font-serif font-bold mb-2 ${verdict.color}`}>{verdict.verdict === "Worth It" ? "✅ Worth It" : verdict.verdict === "Depends" ? "⚠️ Depends" : "❌ Not Worth It"}</p><div className="flex items-center justify-center mt-4 mb-5"><div className="relative w-28 h-28"><svg viewBox="0 0 100 100" className="w-full h-full -rotate-90"><circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="8" className="text-border" /><motion.circle cx="50" cy="50" r="40" fill="none" stroke={verdict.verdict === "Worth It" ? "#34d399" : verdict.verdict === "Depends" ? "#fbbf24" : "#f87171"} strokeWidth="8" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 40}`} strokeDashoffset={`${2 * Math.PI * 40 * (1 - matchPct / 100)}`} initial={{ strokeDashoffset: `${2 * Math.PI * 40}` }} animate={{ strokeDashoffset: `${2 * Math.PI * 40 * (1 - matchPct / 100)}` }} transition={{ duration: 1.1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }} /></svg><div className="absolute inset-0 flex flex-col items-center justify-center"><span className={`text-2xl font-bold ${verdict.color}`}>{matchPct}%</span><span className="text-[10px] text-muted-foreground">match</span></div></div></div><p className="text-sm text-foreground/80 max-w-sm mx-auto leading-relaxed">{verdict.explanation}</p>{peer && <p className="text-xs text-muted-foreground mt-3 max-w-xs mx-auto leading-relaxed">{peer}</p>}</div><div className="rounded-2xl border border-border bg-card p-5 mb-6"><h3 className="text-xs font-serif font-bold text-primary uppercase tracking-widest mb-3">Your Preferences</h3><div className="grid grid-cols-3 gap-3 text-center"><div><p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Budget</p><p className="text-sm font-semibold">{budgetIdx !== null ? BUDGET_PRESETS[budgetIdx].label.split("(")[0].trim() : "—"}</p></div><div><p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Usage</p><p className="text-sm font-semibold">{usage}</p></div><div><p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Priority</p><p className="text-sm font-semibold capitalize">{priority}</p></div></div></div><div className="flex flex-col sm:flex-row gap-3"><button onClick={reset} className="flex-1 flex items-center justify-center gap-2 px-5 py-3.5 rounded-full border border-border text-sm text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all"><RotateCcw className="w-4 h-4" /> Try Again</button><Link href={`/phones/${phone.id}`} className="flex-1"><button className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-full border border-primary/40 text-primary text-sm font-medium hover:bg-primary/10 transition-all">View Full Specs</button></Link><div className="flex justify-center"><WatchReviewButton phone={phone} /></div></div></>}</motion.div>}</AnimatePresence></main><Footer /></div>;
 }
