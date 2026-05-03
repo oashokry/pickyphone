@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Phone } from "@/data/phones";
 import SpecRow from "./SpecRow";
 import PhoneIllustration from "./PhoneIllustration";
+import { WatchReviewButton } from "./ReviewButtons";
 
 interface Props {
   phone: Phone;
@@ -119,6 +120,10 @@ export default function PhoneCard({ phone, winners, matchPct, animationDelay = 0
 
       {/* ── Specs ── */}
       <div className="p-5 bg-background/40 flex-1 flex flex-col gap-6 text-left border-t border-border/40">
+        <div className="flex justify-center">
+          <WatchReviewButton phone={phone} />
+        </div>
+
         {SECTION_GROUPS.map((section, si) => {
           const rows = section.rows(phone, winners);
           return (
