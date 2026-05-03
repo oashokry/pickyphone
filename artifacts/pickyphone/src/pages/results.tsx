@@ -4,9 +4,13 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Share2, Check } from "lucide-react";
 import { useComparison } from "@/context/ComparisonContext";
 import { phones as dbPhones, Phone } from "@/data/phones";
-import { getBestPhone, Priority } from "@/lib/recommendation";
+import {
+  getBestPhone, scorePhone, generateMatchReason,
+  Priority, UsageType, UserPreferences,
+} from "@/lib/recommendation";
 import PhoneCard from "@/components/PhoneCard";
 import RecommendationBanner from "@/components/RecommendationBanner";
+import BestForYouCard from "@/components/BestForYouCard";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -14,20 +18,33 @@ import { Button } from "@/components/ui/button";
 export default function Results() {
   const [, setLocation] = useLocation();
   const search = useSearch();
-  const { selectedPhoneIds, priority: contextPriority } = useComparison();
+  const { selectedPhoneIds, priority: ctxPriority, budget: ctxBudget, usageType: ctxUsage } = useComparison();
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
-  // Parse URL params so shared links work even without context
+  // Parse URL params (shared links or preferences page hand-off)
   const params = new URLSearchParams(search);
   const urlPhoneIds = params.get("phones")?.split(",").filter(Boolean) ?? [];
-  const urlPriority = (params.get("priority") as Priority | null);
+  const urlPriority = params.get("priority") as Priority | null;
+  const urlBudgetRaw = params.get("budget");
+  const urlUsage = params.get("usage") as UsageType | null;
 
-  // Prefer context if populated, otherwise fall back to URL params
-  const activePhoneIds = selectedPhoneIds.some(id => id !== null)
-    ? selectedPhoneIds
-    : urlPhoneIds;
-  const activePriority: Priority = contextPriority ?? urlPriority ?? "balanced";
+  // Resolve active values: context if set, else URL params, else defaults
+  const activePhoneIds = selectedPhoneIds.some(id => id !== null) ? selectedPhoneIds : urlPhoneIds;
+  const activePriority: Priority = ctxPriority ?? urlPriority ?? "balanced";
+
+  // Parse budget from URL param "500-1200"
+  const urlBudget: [number, number] | null = urlBudgetRaw
+    ? (() => {
+        const parts = urlBudgetRaw.split("-").map(Number);
+        return parts.length === 2 && !parts.some(isNaN) ? [parts[0], parts[1]] : null;
+      })()
+    : null;
+  const activeBudget: [number, number] = ctxBudget ?? urlBudget ?? [0, 2000];
+  const activeUsage: UsageType = ctxUsage ?? urlUsage ?? "Mixed";
+
+  // Determine if we have personalized preferences
+  const hasPrefs = !!(urlBudgetRaw && urlUsage);
 
   const selectedPhones = activePhoneIds
     .filter(id => id !== null)
@@ -45,6 +62,18 @@ export default function Results() {
 
   if (selectedPhones.length === 0) return null;
 
+  // Compute match scores if preferences were provided
+  const prefs: UserPreferences = { budget: activeBudget, usageType: activeUsage, priority: activePriority };
+  const matchScores: Record<string, number> = {};
+  if (hasPrefs) {
+    selectedPhones.forEach(p => { matchScores[p.id] = scorePhone(p, prefs); });
+  }
+
+  // Best match phone (highest score)
+  const bestMatch = hasPrefs
+    ? selectedPhones.reduce((best, p) => matchScores[p.id] > matchScores[best.id] ? p : best, selectedPhones[0])
+    : null;
+
   const recommendation = !loading ? getBestPhone(selectedPhones, activePriority) : null;
 
   const winners = {
@@ -57,22 +86,23 @@ export default function Results() {
 
   const handleShare = async () => {
     const ids = selectedPhones.map(p => p.id).join(",");
-    const shareUrl = `${window.location.origin}${window.location.pathname}?phones=${ids}&priority=${activePriority}`;
+    const budgetStr = `${activeBudget[0]}-${activeBudget[1]}`;
+    const baseUrl = `${window.location.origin}${window.location.pathname}`;
+    const shareUrl = hasPrefs
+      ? `${baseUrl}?phones=${ids}&priority=${activePriority}&budget=${budgetStr}&usage=${activeUsage}`
+      : `${baseUrl}?phones=${ids}&priority=${activePriority}`;
     try {
       await navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
     } catch {
-      // Fallback for browsers that block clipboard
       const input = document.createElement("input");
       input.value = shareUrl;
       document.body.appendChild(input);
       input.select();
       document.execCommand("copy");
       document.body.removeChild(input);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
     }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
   };
 
   return (
@@ -93,17 +123,7 @@ export default function Results() {
                 : "border-border text-muted-foreground hover:border-primary/50 hover:text-primary"
             }`}
           >
-            {copied ? (
-              <>
-                <Check className="w-4 h-4" />
-                Link Copied!
-              </>
-            ) : (
-              <>
-                <Share2 className="w-4 h-4" />
-                Share
-              </>
-            )}
+            {copied ? <><Check className="w-4 h-4" />Link Copied!</> : <><Share2 className="w-4 h-4" />Share</>}
           </Button>
         </div>
       </header>
@@ -120,7 +140,20 @@ export default function Results() {
           </div>
         ) : (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-            {recommendation && (
+
+            {/* Best For You card (personalized) */}
+            {hasPrefs && bestMatch && (
+              <BestForYouCard
+                phone={bestMatch}
+                matchPct={matchScores[bestMatch.id]}
+                reason={generateMatchReason(bestMatch, prefs, matchScores[bestMatch.id])}
+                usageType={activeUsage}
+                budget={activeBudget}
+              />
+            )}
+
+            {/* Legacy best-choice banner (no preferences) */}
+            {!hasPrefs && recommendation && (
               <RecommendationBanner phone={recommendation.phone} reason={recommendation.reason} />
             )}
 
@@ -136,7 +169,11 @@ export default function Results() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.15 + 0.3, duration: 0.6 }}
                 >
-                  <PhoneCard phone={phone} winners={winners} />
+                  <PhoneCard
+                    phone={phone}
+                    winners={winners}
+                    matchPct={hasPrefs ? matchScores[phone.id] : undefined}
+                  />
                 </motion.div>
               ))}
             </div>

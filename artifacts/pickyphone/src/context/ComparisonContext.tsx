@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from "react";
-import { Phone, Priority } from "@/lib/recommendation";
+import { Phone, Priority, UsageType } from "@/lib/recommendation";
 
 interface ComparisonContextType {
   slotsCount: number;
@@ -8,6 +8,10 @@ interface ComparisonContextType {
   setSelectedPhoneId: (index: number, id: string | null) => void;
   priority: Priority;
   setPriority: (p: Priority) => void;
+  budget: [number, number];
+  setBudget: (b: [number, number]) => void;
+  usageType: UsageType;
+  setUsageType: (u: UsageType) => void;
 }
 
 const ComparisonContext = createContext<ComparisonContextType | undefined>(undefined);
@@ -16,16 +20,15 @@ export function ComparisonProvider({ children }: { children: ReactNode }) {
   const [slotsCount, setSlotsCount] = useState<number>(2);
   const [selectedPhoneIds, setSelectedPhoneIds] = useState<(string | null)[]>([null, null]);
   const [priority, setPriority] = useState<Priority>("balanced");
+  const [budget, setBudget] = useState<[number, number]>([200, 1200]);
+  const [usageType, setUsageType] = useState<UsageType>("Mixed");
 
   const handleSetSlotsCount = (count: number) => {
     setSlotsCount(count);
     setSelectedPhoneIds(prev => {
-      const newSlots = [...prev];
-      if (count > prev.length) {
-        return [...newSlots, ...Array(count - prev.length).fill(null)];
-      } else {
-        return newSlots.slice(0, count);
-      }
+      const next = [...prev];
+      if (count > prev.length) return [...next, ...Array(count - prev.length).fill(null)];
+      return next.slice(0, count);
     });
   };
 
@@ -39,12 +42,11 @@ export function ComparisonProvider({ children }: { children: ReactNode }) {
 
   return (
     <ComparisonContext.Provider value={{
-      slotsCount,
-      setSlotsCount: handleSetSlotsCount,
-      selectedPhoneIds,
-      setSelectedPhoneId,
-      priority,
-      setPriority
+      slotsCount, setSlotsCount: handleSetSlotsCount,
+      selectedPhoneIds, setSelectedPhoneId,
+      priority, setPriority,
+      budget, setBudget,
+      usageType, setUsageType,
     }}>
       {children}
     </ComparisonContext.Provider>
@@ -52,9 +54,7 @@ export function ComparisonProvider({ children }: { children: ReactNode }) {
 }
 
 export function useComparison() {
-  const context = useContext(ComparisonContext);
-  if (context === undefined) {
-    throw new Error("useComparison must be used within a ComparisonProvider");
-  }
-  return context;
+  const ctx = useContext(ComparisonContext);
+  if (!ctx) throw new Error("useComparison must be used within a ComparisonProvider");
+  return ctx;
 }

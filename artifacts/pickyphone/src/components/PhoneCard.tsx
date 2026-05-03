@@ -11,11 +11,26 @@ interface Props {
     performanceScore: string;
     batteryScore: string;
   };
+  matchPct?: number;
 }
 
-export default function PhoneCard({ phone, winners }: Props) {
+function MatchBadge({ pct }: { pct: number }) {
+  const color =
+    pct >= 90 ? "text-primary border-primary/50 bg-primary/10" :
+    pct >= 75 ? "text-amber-400 border-amber-400/50 bg-amber-400/10" :
+    "text-orange-400 border-orange-400/50 bg-orange-400/10";
+
   return (
-    <div className="flex flex-col bg-card rounded-2xl border border-border shadow-lg hover:border-primary/30 transition-colors duration-500 overflow-hidden">
+    <div className={`absolute top-3 right-3 px-2.5 py-1 rounded-full border text-xs font-bold ${color}`}>
+      {pct}% match
+    </div>
+  );
+}
+
+export default function PhoneCard({ phone, winners, matchPct }: Props) {
+  return (
+    <div className="relative flex flex-col bg-card rounded-2xl border border-border shadow-lg hover:border-primary/30 transition-colors duration-500 overflow-hidden">
+      {matchPct !== undefined && <MatchBadge pct={matchPct} />}
 
       {/* Header / Illustration */}
       <div className="p-6 pb-0 flex flex-col items-center text-center">
@@ -42,7 +57,6 @@ export default function PhoneCard({ phone, winners }: Props) {
 
       {/* Specs */}
       <div className="p-6 bg-background/50 flex-1 flex flex-col gap-8 text-left border-t border-border/50">
-
         <div>
           <h4 className="text-sm font-serif font-bold text-primary mb-2 border-b border-primary/20 pb-2">Display</h4>
           <SpecRow label="Size" value={phone.display.size} />
@@ -79,7 +93,6 @@ export default function PhoneCard({ phone, winners }: Props) {
           <h4 className="text-sm font-serif font-bold text-primary mb-2 border-b border-primary/20 pb-2">Storage</h4>
           <SpecRow label="Options" value={phone.storage.join(", ")} />
         </div>
-
       </div>
     </div>
   );

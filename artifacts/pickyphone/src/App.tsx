@@ -6,6 +6,7 @@ import { ComparisonProvider } from "@/context/ComparisonContext";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Compare from "@/pages/compare";
+import Preferences from "@/pages/preferences";
 import Results from "@/pages/results";
 
 const queryClient = new QueryClient();
@@ -15,6 +16,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/compare" component={Compare} />
+      <Route path="/preferences" component={Preferences} />
       <Route path="/results" component={Results} />
       <Route component={NotFound} />
     </Switch>

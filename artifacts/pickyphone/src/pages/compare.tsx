@@ -10,12 +10,12 @@ import SearchablePhoneSelect from "@/components/SearchablePhoneSelect";
 import { phones } from "@/data/phones";
 
 const priorities: { value: Priority; label: string; icon: any }[] = [
-  { value: "camera", label: "Camera", icon: Camera },
+  { value: "camera",      label: "Camera",      icon: Camera },
   { value: "performance", label: "Performance", icon: Cpu },
-  { value: "battery", label: "Battery", icon: Battery },
-  { value: "display", label: "Display", icon: Monitor },
-  { value: "price", label: "Price", icon: DollarSign },
-  { value: "balanced", label: "Balanced", icon: Scale },
+  { value: "battery",     label: "Battery",     icon: Battery },
+  { value: "display",     label: "Display",     icon: Monitor },
+  { value: "price",       label: "Price",       icon: DollarSign },
+  { value: "balanced",    label: "Balanced",    icon: Scale },
 ];
 
 export default function Compare() {
@@ -25,6 +25,13 @@ export default function Compare() {
   const isReady = selectedPhoneIds.every(id => id !== null);
 
   const handleCompare = () => {
+    if (isReady) {
+      const ids = selectedPhoneIds.filter(Boolean).join(",");
+      setLocation(`/preferences?phones=${ids}`);
+    }
+  };
+
+  const handleSkip = () => {
     if (isReady) {
       const ids = selectedPhoneIds.filter(Boolean).join(",");
       setLocation(`/results?phones=${ids}&priority=${priority}`);
@@ -56,8 +63,8 @@ export default function Compare() {
                 onClick={() => setSlotsCount(num)}
                 data-testid={`btn-slots-${num}`}
                 className={`flex-1 py-4 rounded-xl border transition-all duration-300 font-medium ${
-                  slotsCount === num 
-                    ? "bg-primary/10 border-primary text-primary shadow-[0_0_15px_-3px_hsl(var(--primary)/0.3)]" 
+                  slotsCount === num
+                    ? "bg-primary/10 border-primary text-primary shadow-[0_0_15px_-3px_hsl(var(--primary)/0.3)]"
                     : "bg-card border-border text-muted-foreground hover:border-primary/50"
                 }`}
               >
@@ -88,11 +95,11 @@ export default function Compare() {
           </div>
         </motion.section>
 
-        {/* Step 3 */}
+        {/* Step 3 — shown only for quick/skip path */}
         <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }} className="space-y-6">
           <div className="flex items-center gap-4">
             <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-mono text-sm border border-primary/20">3</span>
-            <h2 className="text-2xl font-serif">Priority</h2>
+            <h2 className="text-2xl font-serif">Quick Priority <span className="text-muted-foreground text-lg font-sans font-normal">(optional)</span></h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {priorities.map(p => {
@@ -117,19 +124,28 @@ export default function Compare() {
           </div>
         </motion.section>
 
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="pt-8 flex justify-end">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="pt-8 flex flex-col sm:flex-row gap-4 justify-end">
+          <Button
+            size="lg"
+            variant="outline"
+            disabled={!isReady}
+            onClick={handleSkip}
+            className="sm:w-auto px-8 py-6 rounded-full text-base border-border text-muted-foreground hover:border-primary/50 hover:text-primary disabled:opacity-40 transition-all"
+          >
+            Skip — Compare Only
+          </Button>
           <Button
             size="lg"
             disabled={!isReady}
             onClick={handleCompare}
             data-testid="btn-compare-now"
-            className="w-full md:w-auto px-12 py-6 rounded-full text-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none shadow-[0_0_30px_-5px_hsl(var(--primary)/0.5)] transition-all"
+            className="sm:w-auto px-12 py-6 rounded-full text-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none shadow-[0_0_30px_-5px_hsl(var(--primary)/0.5)] transition-all"
           >
-            Compare Now
+            Personalise & Compare
           </Button>
         </motion.div>
       </main>
-      
+
       <Footer />
     </div>
   );
