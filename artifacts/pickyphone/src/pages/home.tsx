@@ -62,8 +62,8 @@ export default function Home() {
             initial={{ opacity: 0, scale: 0.88 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="w-80 h-80 sm:w-96 sm:h-96 object-contain mb-2
-              drop-shadow-[0_0_80px_rgba(212,175,55,0.55)]"
+            className="w-56 h-40 sm:w-72 sm:h-52 object-contain mb-4
+              drop-shadow-[0_0_60px_rgba(212,175,55,0.50)]"
           />
 
           <h1 className="text-5xl sm:text-6xl md:text-7xl font-serif font-bold tracking-tight mb-3 leading-tight">
