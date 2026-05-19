@@ -1,6 +1,7 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation, useParams } from "wouter";
-import { ArrowLeft, GitCompare, Sparkles } from "lucide-react";
+import { ArrowLeft, GitCompare, Sparkles, Languages, X, Loader2 } from "lucide-react";
+import { useState } from "react";
 import { phones, type Phone } from "@/data/phones";
 import { useComparison } from "@/context/ComparisonContext";
 import PhoneIllustration from "@/components/PhoneIllustration";
@@ -74,6 +75,103 @@ function SimilarPhones({ current }: { current: Phone }) {
   );
 }
 
+function HumanTranslation({ phone }: { phone: Phone }) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [translation, setTranslation] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleTranslate = async () => {
+    setOpen(true);
+    if (translation) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/translate-specs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      const data = await res.json() as { translation: string };
+      setTranslation(data.translation);
+    } catch {
+      setError("Couldn't translate specs right now. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <button
+        onClick={handleTranslate}
+        className="group w-full flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full border border-primary/30 bg-primary/5 text-primary font-semibold text-sm hover:bg-primary/12 hover:border-primary/60 transition-all duration-300"
+      >
+        <Languages className="w-4 h-4 group-hover:scale-110 transition-transform" />
+        Translate to Human Language
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            onClick={() => setOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 40, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.96 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              className="relative w-full max-w-lg bg-card border border-border rounded-3xl p-7 shadow-2xl max-h-[80vh] overflow-y-auto"
+              onClick={e => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setOpen(false)}
+                className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-border/60 text-muted-foreground transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="flex items-center gap-2.5 mb-5">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Languages className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold tracking-widest text-primary uppercase">Plain English</p>
+                  <h3 className="text-lg font-serif font-bold leading-tight">{phone.brand} {phone.name}</h3>
+                </div>
+              </div>
+
+              {loading && (
+                <div className="flex flex-col items-center justify-center py-12 gap-3 text-muted-foreground">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                  <p className="text-sm">Translating specs into plain English…</p>
+                </div>
+              )}
+
+              {error && (
+                <p className="text-sm text-red-500 text-center py-8">{error}</p>
+              )}
+
+              {translation && (
+                <div className="space-y-3">
+                  {translation.split("\n\n").filter(Boolean).map((para, i) => (
+                    <p key={i} className="text-sm text-foreground/85 leading-relaxed">{para}</p>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
 export default function PhoneDetail() {
   const params = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
@@ -91,7 +189,7 @@ export default function PhoneDetail() {
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 py-8 md:py-12">
         <Breadcrumbs items={[{ name: "Home", href: "/" }, { name: "Phones", href: "/browse" }, { name: phone.name, href: phonePath(phone.id) }]} />
         <div className="grid md:grid-cols-[340px_1fr] gap-8 md:gap-12">
-          <div className="flex flex-col gap-6"><motion.div initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }} className="relative rounded-3xl border border-border/60 bg-card p-8 flex flex-col items-center shadow-[0_0_60px_-20px_hsl(var(--primary)/0.15)]"><div className="w-full max-w-[180px] h-64 mb-5"><PhoneIllustration brand={phone.brand} name={phone.name} /></div><span className="text-[10px] font-bold tracking-[0.22em] text-muted-foreground uppercase mb-1">{phone.brand}</span><h1 className="text-2xl sm:text-3xl font-serif font-bold text-center mb-1">{phone.name}</h1><p className="text-3xl font-bold text-primary mb-1">${phone.price.toLocaleString()}</p><p className="text-sm text-muted-foreground mb-4">{phone.year}</p><div className="flex gap-2.5 flex-wrap justify-center mb-5">{phone.colors.map(c => <div key={c.hex} title={c.name} className="group relative"><div className="w-5 h-5 rounded-full border-2 border-white/10 ring-1 ring-background cursor-pointer hover:ring-2 hover:ring-primary/60 transition-all" style={{ backgroundColor: c.hex }} /><div className="absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-1 rounded text-[10px] bg-card border border-border text-foreground whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">{c.name}</div></div>)} </div><div className="flex gap-2 flex-wrap justify-center">{phone.storage.map(s => <span key={s} className="px-2.5 py-1 rounded-full text-[10px] font-semibold border border-primary/20 bg-primary/8 text-primary">{s}</span>)}</div><div className="absolute bottom-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" /></motion.div><motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }} className="rounded-2xl border border-border bg-card p-5 space-y-3"><h3 className="text-xs font-serif font-bold text-primary uppercase tracking-widest mb-4">Score Summary</h3><div className="space-y-2"><div><div className="flex justify-between text-xs mb-1.5"><span className="text-muted-foreground">Camera</span></div>{scoreBar(phone.camera.score)}</div><div><div className="flex justify-between text-xs mb-1.5"><span className="text-muted-foreground">Performance</span></div>{scoreBar(phone.performance.score)}</div><div><div className="flex justify-between text-xs mb-1.5"><span className="text-muted-foreground">Battery</span></div>{scoreBar(phone.battery.score)}</div><div><div className="flex justify-between text-xs mb-1.5"><span className="text-muted-foreground">Display</span></div>{scoreBar(phone.displayScore)}</div></div></motion.div><motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }} className="flex flex-col gap-4"><Link href={`/analyze/${phone.id}`}><button className="group w-full flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-[0_0_28px_-6px_hsl(var(--primary)/0.5)] hover:bg-primary/90 hover:shadow-[0_0_40px_-6px_hsl(var(--primary)/0.6)] transition-all duration-300"><Sparkles className="w-4 h-4 group-hover:scale-110 transition-transform" />Is It Worth It?</button></Link><button onClick={handleCompare} className="group w-full flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full border border-border bg-card text-foreground font-semibold text-sm hover:border-primary/50 hover:text-primary hover:bg-primary/8 transition-all duration-300"><GitCompare className="w-4 h-4 group-hover:scale-110 transition-transform" />Compare with Another</button><div className="flex justify-center pt-1"><WatchReviewButton phone={phone} /></div></motion.div></div>
+          <div className="flex flex-col gap-6"><motion.div initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }} className="relative rounded-3xl border border-border/60 bg-card p-8 flex flex-col items-center shadow-[0_0_60px_-20px_hsl(var(--primary)/0.15)]"><div className="w-full max-w-[180px] h-64 mb-5"><PhoneIllustration brand={phone.brand} name={phone.name} /></div><span className="text-[10px] font-bold tracking-[0.22em] text-muted-foreground uppercase mb-1">{phone.brand}</span><h1 className="text-2xl sm:text-3xl font-serif font-bold text-center mb-1">{phone.name}</h1><p className="text-3xl font-bold text-primary mb-1">${phone.price.toLocaleString()}</p><p className="text-sm text-muted-foreground mb-4">{phone.year}</p><div className="flex gap-2.5 flex-wrap justify-center mb-5">{phone.colors.map(c => <div key={c.hex} title={c.name} className="group relative"><div className="w-5 h-5 rounded-full border-2 border-white/10 ring-1 ring-background cursor-pointer hover:ring-2 hover:ring-primary/60 transition-all" style={{ backgroundColor: c.hex }} /><div className="absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-1 rounded text-[10px] bg-card border border-border text-foreground whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">{c.name}</div></div>)} </div><div className="flex gap-2 flex-wrap justify-center">{phone.storage.map(s => <span key={s} className="px-2.5 py-1 rounded-full text-[10px] font-semibold border border-primary/20 bg-primary/8 text-primary">{s}</span>)}</div><div className="absolute bottom-0 left-4 right-4 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" /></motion.div><motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }} className="rounded-2xl border border-border bg-card p-5 space-y-3"><h3 className="text-xs font-serif font-bold text-primary uppercase tracking-widest mb-4">Score Summary</h3><div className="space-y-2"><div><div className="flex justify-between text-xs mb-1.5"><span className="text-muted-foreground">Camera</span></div>{scoreBar(phone.camera.score)}</div><div><div className="flex justify-between text-xs mb-1.5"><span className="text-muted-foreground">Performance</span></div>{scoreBar(phone.performance.score)}</div><div><div className="flex justify-between text-xs mb-1.5"><span className="text-muted-foreground">Battery</span></div>{scoreBar(phone.battery.score)}</div><div><div className="flex justify-between text-xs mb-1.5"><span className="text-muted-foreground">Display</span></div>{scoreBar(phone.displayScore)}</div></div></motion.div><motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }} className="flex flex-col gap-4"><Link href={`/analyze/${phone.id}`}><button className="group w-full flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-[0_0_28px_-6px_hsl(var(--primary)/0.5)] hover:bg-primary/90 hover:shadow-[0_0_40px_-6px_hsl(var(--primary)/0.6)] transition-all duration-300"><Sparkles className="w-4 h-4 group-hover:scale-110 transition-transform" />Is It Worth It?</button></Link><button onClick={handleCompare} className="group w-full flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full border border-border bg-card text-foreground font-semibold text-sm hover:border-primary/50 hover:text-primary hover:bg-primary/8 transition-all duration-300"><GitCompare className="w-4 h-4 group-hover:scale-110 transition-transform" />Compare with Another</button><HumanTranslation phone={phone} /><div className="flex justify-center pt-1"><WatchReviewButton phone={phone} /></div></motion.div></div>
           <div className="space-y-4"><motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }} className="mb-2"><p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">Full Specifications</p><h2 className="text-2xl font-serif font-bold">{phone.brand} {phone.name}</h2><p className="text-muted-foreground text-sm mt-2 max-w-2xl">{phone.name} is a premium choice for users who want strong specs, modern design, and a clear upgrade path. Use the sections below to compare its display, camera, battery, and performance against the competition.</p></motion.div><SpecSection title="Display" delay={0.1} rows={[{ label: "Screen Size", value: phone.display.size }, { label: "Resolution", value: phone.display.resolution }, { label: "Panel Type", value: phone.display.type }, { label: "Refresh Rate", value: phone.display.refreshRate }, { label: "Display Score", value: `${phone.displayScore}/100` }]} /><SpecSection title="Performance" delay={0.18} rows={[{ label: "Chipset", value: phone.performance.chipset }, { label: "RAM", value: phone.performance.ram }, { label: "Storage", value: phone.storage.join(", ") }, { label: "Performance Score", value: `${phone.performance.score}/100` }]} /><SpecSection title="Camera" delay={0.26} rows={[{ label: "Main Camera", value: phone.camera.main }, { label: "Ultrawide", value: phone.camera.ultrawide }, { label: "Telephoto", value: phone.camera.telephoto }, { label: "Video", value: phone.camera.video }, { label: "Camera Score", value: `${phone.camera.score}/100` }]} /><SpecSection title="Battery" delay={0.34} rows={[{ label: "Capacity", value: phone.battery.capacity }, { label: "Charging", value: phone.battery.charging }, { label: "Battery Score", value: `${phone.battery.score}/100` }]} /><SpecSection title="Connectivity & Other" delay={0.42} rows={[{ label: "Colors Available", value: phone.colors.map(c => c.name).join(", ") }, { label: "Release Year", value: String(phone.year) }, { label: "Price (2026)", value: `$${phone.price.toLocaleString()}` }]} /></div>
         </div>
 
