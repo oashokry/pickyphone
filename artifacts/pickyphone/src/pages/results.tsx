@@ -181,7 +181,7 @@ function CompareTranslateButton({ phones }: { phones: { id: string; brand: strin
         return <h3 key={i} className="text-sm font-serif font-bold text-primary mt-5 mb-2 first:mt-0">{line.replace("## ", "")}</h3>;
       }
       if (line.trim() === "") return null;
-      return <p key={i} className="text-sm text-foreground/85 leading-relaxed mb-1">{line}</p>;
+      return <p key={i} className="text-sm text-foreground leading-relaxed mb-1">{line}</p>;
     });
   };
 

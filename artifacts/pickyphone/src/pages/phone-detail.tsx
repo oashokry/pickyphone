@@ -160,7 +160,7 @@ function HumanTranslation({ phone }: { phone: Phone }) {
               {translation && (
                 <div className="space-y-3">
                   {translation.split("\n\n").filter(Boolean).map((para, i) => (
-                    <p key={i} className="text-sm text-foreground/85 leading-relaxed">{para}</p>
+                    <p key={i} className="text-sm text-foreground leading-relaxed">{para}</p>
                   ))}
                 </div>
               )}
