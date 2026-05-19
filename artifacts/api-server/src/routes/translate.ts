@@ -26,12 +26,17 @@ Write 4–6 short paragraphs. Each paragraph should cover one aspect (display, c
 
   try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-5-mini",
-      max_completion_tokens: 1024,
+      model: "gpt-5",
+      max_completion_tokens: 8192,
       messages: [{ role: "user", content: prompt }],
     });
 
     const text = completion.choices[0]?.message?.content ?? "";
+    if (!text) {
+      console.error("Empty content from OpenAI. Full completion:", JSON.stringify(completion));
+      res.status(500).json({ error: "AI returned empty response" });
+      return;
+    }
     res.json({ translation: text });
   } catch (err) {
     console.error("OpenAI error:", err);
