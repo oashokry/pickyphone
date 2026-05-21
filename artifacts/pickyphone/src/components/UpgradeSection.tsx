@@ -3,13 +3,12 @@ import { CheckCircle2, XCircle, AlertCircle, TrendingUp, TrendingDown, Minus } f
 import { Phone } from "@/data/phones";
 import { analyzeUpgrade, UpgradeVerdict } from "@/lib/scoring";
 import PhoneIllustration from "./PhoneIllustration";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Props {
   currentPhone: Phone;
   candidates: Phone[];
 }
-
-// ─── Delta bar ─────────────────────────────────────────────────────────────────
 
 function DeltaBar({ label, delta, delay }: { label: string; delta: number; delay: number }) {
   const pos = delta > 2;
@@ -41,10 +40,14 @@ function DeltaBar({ label, delta, delay }: { label: string; delta: number; delay
   );
 }
 
-// ─── Verdict badge ──────────────────────────────────────────────────────────────
-
 function VerdictBadge({ verdict }: { verdict: UpgradeVerdict }) {
-  const MAP = {
+  const { t } = useLanguage();
+  const verdictLabel: Record<UpgradeVerdict, string> = {
+    "Worth It": t.worthIt,
+    "Marginal": t.marginal,
+    "Not Worth It": t.notWorthIt,
+  };
+  const MAP: Record<UpgradeVerdict, { icon: typeof CheckCircle2; cls: string }> = {
     "Worth It":     { icon: CheckCircle2, cls: "text-emerald-400 border-emerald-400/35 bg-emerald-400/10" },
     "Marginal":     { icon: AlertCircle,  cls: "text-amber-400 border-amber-400/35 bg-amber-400/10" },
     "Not Worth It": { icon: XCircle,      cls: "text-red-400 border-red-400/35 bg-red-400/10" },
@@ -53,14 +56,13 @@ function VerdictBadge({ verdict }: { verdict: UpgradeVerdict }) {
   return (
     <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-[11px] font-bold shrink-0 ${cls}`}>
       <Icon className="w-3 h-3" />
-      {verdict}
+      {verdictLabel[verdict]}
     </span>
   );
 }
 
-// ─── Single upgrade card ────────────────────────────────────────────────────────
-
 function UpgradeCard({ currentPhone, candidate, index }: { currentPhone: Phone; candidate: Phone; index: number }) {
+  const { t } = useLanguage();
   const a = analyzeUpgrade(currentPhone, candidate);
   const overallColor = a.overallDelta >= 20 ? "text-emerald-400" : a.overallDelta >= 8 ? "text-amber-400" : "text-red-400";
 
@@ -72,7 +74,6 @@ function UpgradeCard({ currentPhone, candidate, index }: { currentPhone: Phone; 
       className="bg-card border border-border rounded-2xl p-5 flex flex-col gap-4
         hover:border-border/80 transition-colors duration-300"
     >
-      {/* Phone header */}
       <div className="flex items-center gap-3 min-w-0">
         <div className="w-9 shrink-0">
           <PhoneIllustration brand={candidate.brand} name={candidate.name} />
@@ -84,46 +85,41 @@ function UpgradeCard({ currentPhone, candidate, index }: { currentPhone: Phone; 
         <VerdictBadge verdict={a.verdict} />
       </div>
 
-      {/* Delta bars */}
       <div className="space-y-2.5">
-        <DeltaBar label="Performance" delta={a.performanceDelta} delay={index * 0.1 + 0.3} />
-        <DeltaBar label="Camera"      delta={a.cameraDelta}      delay={index * 0.1 + 0.38} />
-        <DeltaBar label="Battery"     delta={a.batteryDelta}     delay={index * 0.1 + 0.46} />
-        <DeltaBar label="Display"     delta={a.displayDelta}     delay={index * 0.1 + 0.54} />
+        <DeltaBar label={t.performance} delta={a.performanceDelta} delay={index * 0.1 + 0.3} />
+        <DeltaBar label={t.camera}      delta={a.cameraDelta}      delay={index * 0.1 + 0.38} />
+        <DeltaBar label={t.battery}     delta={a.batteryDelta}     delay={index * 0.1 + 0.46} />
+        <DeltaBar label={t.display}     delta={a.displayDelta}     delay={index * 0.1 + 0.54} />
       </div>
 
-      {/* Overall */}
       <div className="flex items-center justify-between pt-3 border-t border-border/50">
         <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">
-          Overall
+          {t.overall}
         </span>
         <span className={`text-xl font-bold font-serif ${overallColor}`}>
           {a.overallDelta > 0 ? "+" : ""}{a.overallDelta}%
         </span>
       </div>
 
-      {/* Explanation */}
-      <p className="text-xs text-muted-foreground leading-relaxed border-l-2 border-border/70 pl-3">
+      <p className="text-xs text-muted-foreground leading-relaxed border-s-2 border-border/70 ps-3">
         {a.explanation}
       </p>
     </motion.div>
   );
 }
 
-// ─── Section ────────────────────────────────────────────────────────────────────
-
 export default function UpgradeSection({ currentPhone, candidates }: Props) {
+  const { t } = useLanguage();
   if (candidates.length === 0) return null;
 
   return (
     <section className="mt-12">
       <div className="mb-5">
         <h2 className="text-2xl font-serif border-b border-border/50 pb-4 inline-block">
-          Is It Worth Upgrading?
+          {t.isItWorthUpgrading}
         </h2>
       </div>
 
-      {/* Current phone chip */}
       <motion.div
         initial={{ opacity: 0, x: -8 }}
         animate={{ opacity: 1, x: 0 }}
@@ -135,7 +131,7 @@ export default function UpgradeSection({ currentPhone, candidates }: Props) {
         </div>
         <div>
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider leading-none mb-0.5">
-            Comparing from
+            {t.comparingFrom}
           </p>
           <p className="font-semibold text-sm leading-none">
             {currentPhone.brand} {currentPhone.name}
@@ -143,7 +139,6 @@ export default function UpgradeSection({ currentPhone, candidates }: Props) {
         </div>
       </motion.div>
 
-      {/* Cards grid — 1 col mobile, 2 sm, 3 lg, 4 xl */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {candidates.map((c, i) => (
           <UpgradeCard key={c.id} currentPhone={currentPhone} candidate={c} index={i} />

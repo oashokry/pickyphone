@@ -7,25 +7,36 @@ import PhoneIllustration from "@/components/PhoneIllustration";
 import Footer from "@/components/Footer";
 import Seo from "@/components/Seo";
 import { browseDescription, browseKeywords, browseTitle, getCanonicalUrl, phonePath } from "@/lib/seo";
+import { useLanguage, LanguageToggle } from "@/context/LanguageContext";
 
 const ALL_BRANDS = Array.from(new Set(phones.map(p => p.brand))).sort();
-const PRICE_RANGES = [
-  { label: "All Prices", min: 0, max: Infinity },
-  { label: "Under $500", min: 0, max: 499 },
-  { label: "$500 – $800", min: 500, max: 800 },
-  { label: "$800 – $1,100", min: 801, max: 1100 },
-  { label: "Over $1,100", min: 1101, max: Infinity },
+const PRICE_RANGE_DEFS = [
+  { min: 0, max: Infinity },
+  { min: 0, max: 499 },
+  { min: 500, max: 800 },
+  { min: 801, max: 1100 },
+  { min: 1101, max: Infinity },
 ];
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.04, delayChildren: 0.1 } } };
 const cardAnim = { hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] } }, exit: { opacity: 0, scale: 0.96, transition: { duration: 0.2 } } };
 
 export default function Browse() {
+  const { t } = useLanguage();
   const [query, setQuery] = useState("");
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
   const [priceIdx, setPriceIdx] = useState(0);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const range = PRICE_RANGES[priceIdx];
+  const range = PRICE_RANGE_DEFS[priceIdx];
   const url = getCanonicalUrl("/browse");
+
+  const PRICE_RANGES = [
+    { label: t.allPrices,      ...PRICE_RANGE_DEFS[0] },
+    { label: t.under500,       ...PRICE_RANGE_DEFS[1] },
+    { label: t.price500to800,  ...PRICE_RANGE_DEFS[2] },
+    { label: t.price800to1100, ...PRICE_RANGE_DEFS[3] },
+    { label: t.over1100,       ...PRICE_RANGE_DEFS[4] },
+  ];
+
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();
     return phones.filter(p => {
@@ -35,20 +46,104 @@ export default function Browse() {
       return matchQ && matchBrand && matchPrice;
     });
   }, [query, selectedBrand, priceIdx]);
+
   const clearFilters = () => { setSelectedBrand(null); setPriceIdx(0); setQuery(""); };
   const hasFilters = !!query || !!selectedBrand || priceIdx !== 0;
+
   return (
     <div className="min-h-[100dvh] flex flex-col bg-background text-foreground">
       <Seo title={browseTitle()} description={browseDescription()} keywords={browseKeywords()} url={url} canonical={url} />
-      <header className="border-b border-border/40 px-5 py-4 flex justify-between items-center sticky top-0 z-50 bg-background/80 backdrop-blur-xl"><Link href="/" className="font-serif text-xl font-bold tracking-tight text-primary">PickyPhone.</Link><Link href="/compare"><button className="text-sm text-muted-foreground hover:text-primary transition-colors px-3 py-1.5 rounded-lg hover:bg-primary/8">Compare</button></Link></header>
+      <header className="border-b border-border/40 px-5 py-4 flex justify-between items-center sticky top-0 z-50 bg-background/80 backdrop-blur-xl">
+        <Link href="/" className="font-serif text-xl font-bold tracking-tight text-primary">PickyPhone.</Link>
+        <div className="flex items-center gap-3">
+          <LanguageToggle />
+          <Link href="/compare">
+            <button className="text-sm text-muted-foreground hover:text-primary transition-colors px-3 py-1.5 rounded-lg hover:bg-primary/8">{t.compare}</button>
+          </Link>
+        </div>
+      </header>
+
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-8 md:py-12">
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }} className="mb-8"><p className="text-xs font-bold tracking-widest text-primary uppercase mb-2">Browse</p><h1 className="text-3xl sm:text-4xl font-serif font-bold mb-1">All Phones</h1><p className="text-muted-foreground text-base">{filtered.length} of {phones.length} devices</p></motion.div>
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.1, ease: [0.22, 1, 0.36, 1] }} className="mb-6 space-y-4">
-          <div className="flex gap-3"><div className="relative flex-1"><Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" /><input type="text" placeholder="Search brand or model…" value={query} onChange={e => setQuery(e.target.value)} className="w-full pl-10 pr-4 py-3 rounded-xl border border-border bg-card text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all" />{query && <button onClick={() => setQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"><X className="w-4 h-4" /></button>}</div><button onClick={() => setFiltersOpen(o => !o)} className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium transition-all ${filtersOpen || (selectedBrand || priceIdx !== 0) ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground"}`}><SlidersHorizontal className="w-4 h-4" /><span className="hidden sm:inline">Filters</span>{(selectedBrand || priceIdx !== 0) && <span className="w-2 h-2 rounded-full bg-primary" />}</button></div>
-          <AnimatePresence>{filtersOpen && <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }} className="overflow-hidden"><div className="p-5 rounded-xl border border-border bg-card/60 space-y-5"><div><p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">Brand</p><div className="flex flex-wrap gap-2"><ChipBtn active={!selectedBrand} onClick={() => setSelectedBrand(null)}>All</ChipBtn>{ALL_BRANDS.map(b => <ChipBtn key={b} active={selectedBrand === b} onClick={() => setSelectedBrand(b === selectedBrand ? null : b)}>{b}</ChipBtn>)}</div></div><div><p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">Price Range</p><div className="flex flex-wrap gap-2">{PRICE_RANGES.map((r, i) => <ChipBtn key={r.label} active={priceIdx === i} onClick={() => setPriceIdx(i)}>{r.label}</ChipBtn>)}</div></div>{hasFilters && <button onClick={clearFilters} className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1.5 transition-colors"><X className="w-3 h-3" /> Clear all filters</button>}</div></motion.div>}</AnimatePresence>
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }} className="mb-8">
+          <p className="text-xs font-bold tracking-widest text-primary uppercase mb-2">{t.browseLabel}</p>
+          <h1 className="text-3xl sm:text-4xl font-serif font-bold mb-1">{t.allPhones}</h1>
+          <p className="text-muted-foreground text-base">{t.devicesCount(filtered.length, phones.length)}</p>
         </motion.div>
-        {filtered.length === 0 ? <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-24 text-muted-foreground"><p className="text-lg font-serif mb-2">No phones found</p><p className="text-sm">Try adjusting your search or filters.</p></motion.div> : <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4"><AnimatePresence mode="popLayout">{filtered.map(phone => <motion.div key={phone.id} variants={cardAnim} layout><Link href={phonePath(phone.id)}><div className="group bg-card border border-border rounded-2xl p-4 flex flex-col items-center text-center cursor-pointer hover:border-primary/35 hover:shadow-[0_0_24px_-8px_hsl(var(--primary)/0.35)] transition-all duration-400 h-full"><div className="w-full h-28 sm:h-36 flex items-center justify-center mb-3 px-3"><PhoneIllustration brand={phone.brand} name={phone.name} /></div><span className="text-[9px] font-bold tracking-[0.18em] text-muted-foreground uppercase mb-1">{phone.brand}</span><h3 className="text-sm font-serif font-bold leading-snug mb-2 group-hover:text-primary transition-colors">{phone.name}</h3><div className="flex gap-1.5 justify-center mb-3 flex-wrap">{phone.colors.slice(0, 4).map(c => <div key={c.hex} title={c.name} className="w-2.5 h-2.5 rounded-full border border-white/10" style={{ backgroundColor: c.hex }} />)}</div><p className="text-primary font-semibold text-sm mt-auto">${phone.price.toLocaleString()}</p><p className="text-[10px] text-muted-foreground">{phone.year}</p><div className="mt-2 text-[10px] font-medium text-primary/0 group-hover:text-primary/70 transition-colors">View Details →</div></div></Link></motion.div>)}</AnimatePresence></motion.div>}
-      </main><Footer /></div>
+
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.1, ease: [0.22, 1, 0.36, 1] }} className="mb-6 space-y-4">
+          <div className="flex gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute start-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+              <input type="text" placeholder={t.searchPlaceholder} value={query} onChange={e => setQuery(e.target.value)} className="w-full ps-10 pe-4 py-3 rounded-xl border border-border bg-card text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all" />
+              {query && <button onClick={() => setQuery("")} className="absolute end-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"><X className="w-4 h-4" /></button>}
+            </div>
+            <button onClick={() => setFiltersOpen(o => !o)} className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium transition-all ${filtersOpen || (selectedBrand || priceIdx !== 0) ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground"}`}>
+              <SlidersHorizontal className="w-4 h-4" />
+              <span className="hidden sm:inline">{t.filters}</span>
+              {(selectedBrand || priceIdx !== 0) && <span className="w-2 h-2 rounded-full bg-primary" />}
+            </button>
+          </div>
+
+          <AnimatePresence>
+            {filtersOpen && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }} className="overflow-hidden">
+                <div className="p-5 rounded-xl border border-border bg-card/60 space-y-5">
+                  <div>
+                    <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">{t.brand}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <ChipBtn active={!selectedBrand} onClick={() => setSelectedBrand(null)}>{t.all}</ChipBtn>
+                      {ALL_BRANDS.map(b => <ChipBtn key={b} active={selectedBrand === b} onClick={() => setSelectedBrand(b === selectedBrand ? null : b)}>{b}</ChipBtn>)}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">{t.priceRange}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {PRICE_RANGES.map((r, i) => <ChipBtn key={i} active={priceIdx === i} onClick={() => setPriceIdx(i)}>{r.label}</ChipBtn>)}
+                    </div>
+                  </div>
+                  {hasFilters && <button onClick={clearFilters} className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1.5 transition-colors"><X className="w-3 h-3" /> {t.clearAllFilters}</button>}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
+        {filtered.length === 0 ? (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-24 text-muted-foreground">
+            <p className="text-lg font-serif mb-2">{t.noPhonesFound}</p>
+            <p className="text-sm">{t.tryAdjusting}</p>
+          </motion.div>
+        ) : (
+          <motion.div variants={container} initial="hidden" animate="show" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+            <AnimatePresence mode="popLayout">
+              {filtered.map(phone => (
+                <motion.div key={phone.id} variants={cardAnim} layout>
+                  <Link href={phonePath(phone.id)}>
+                    <div className="group bg-card border border-border rounded-2xl p-4 flex flex-col items-center text-center cursor-pointer hover:border-primary/35 hover:shadow-[0_0_24px_-8px_hsl(var(--primary)/0.35)] transition-all duration-400 h-full">
+                      <div className="w-full h-28 sm:h-36 flex items-center justify-center mb-3 px-3"><PhoneIllustration brand={phone.brand} name={phone.name} /></div>
+                      <span className="text-[9px] font-bold tracking-[0.18em] text-muted-foreground uppercase mb-1">{phone.brand}</span>
+                      <h3 className="text-sm font-serif font-bold leading-snug mb-2 group-hover:text-primary transition-colors">{phone.name}</h3>
+                      <div className="flex gap-1.5 justify-center mb-3 flex-wrap">{phone.colors.slice(0, 4).map(c => <div key={c.hex} title={c.name} className="w-2.5 h-2.5 rounded-full border border-white/10" style={{ backgroundColor: c.hex }} />)}</div>
+                      <p className="text-primary font-semibold text-sm mt-auto">${phone.price.toLocaleString()}</p>
+                      <p className="text-[10px] text-muted-foreground">{phone.year}</p>
+                      <div className="mt-2 text-[10px] font-medium text-primary/0 group-hover:text-primary/70 transition-colors">{t.viewDetails}</div>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        )}
+      </main>
+      <Footer />
+    </div>
   );
 }
-function ChipBtn({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) { return <button onClick={onClick} className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-200 ${active ? "border-primary bg-primary/10 text-primary shadow-[0_0_8px_-2px_hsl(var(--primary)/0.4)]" : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"}`}>{children}</button>; }
+
+function ChipBtn({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button onClick={onClick} className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-200 ${active ? "border-primary bg-primary/10 text-primary shadow-[0_0_8px_-2px_hsl(var(--primary)/0.4)]" : "border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-foreground"}`}>
+      {children}
+    </button>
+  );
+}

@@ -10,23 +10,7 @@ import { Priority, UsageType } from "@/lib/recommendation";
 import { phones } from "@/data/phones";
 import SearchablePhoneSelect from "@/components/SearchablePhoneSelect";
 import Footer from "@/components/Footer";
-
-const USAGE_OPTIONS: { value: UsageType; label: string; icon: any; desc: string }[] = [
-  { value: "Gaming",      label: "Gaming",      icon: Gamepad2,  desc: "High refresh rate & top performance" },
-  { value: "Casual",      label: "Casual",      icon: Sun,       desc: "Battery & everyday reliability" },
-  { value: "Work",        label: "Work",        icon: Briefcase, desc: "Multitasking & all-day power" },
-  { value: "Photography", label: "Photography", icon: Aperture,  desc: "Camera quality above all" },
-  { value: "Mixed",       label: "Mixed",       icon: Shuffle,   desc: "Balanced across everything" },
-];
-
-const PRIORITY_OPTIONS: { value: Priority; label: string; icon: any }[] = [
-  { value: "camera",      label: "Camera",      icon: Camera },
-  { value: "performance", label: "Performance", icon: Cpu },
-  { value: "battery",     label: "Battery",     icon: Battery },
-  { value: "display",     label: "Display",     icon: Monitor },
-  { value: "price",       label: "Price",       icon: DollarSign },
-  { value: "balanced",    label: "Balanced",    icon: Scale },
-];
+import { useLanguage, LanguageToggle } from "@/context/LanguageContext";
 
 const BUDGET_MIN = 0;
 const BUDGET_MAX = 2000;
@@ -67,6 +51,7 @@ export default function Preferences() {
   const search = useSearch();
   const params = new URLSearchParams(search);
   const phonesParam = params.get("phones") ?? "";
+  const { t } = useLanguage();
 
   const {
     priority, setPriority,
@@ -74,6 +59,23 @@ export default function Preferences() {
     usageType, setUsageType,
     currentPhoneId, setCurrentPhoneId,
   } = useComparison();
+
+  const USAGE_OPTIONS: { value: UsageType; label: string; icon: any; desc: string }[] = [
+    { value: "Gaming",      label: t.gaming,       icon: Gamepad2,  desc: t.gamingDesc },
+    { value: "Casual",      label: t.casual,       icon: Sun,       desc: t.casualDesc },
+    { value: "Work",        label: t.work,         icon: Briefcase, desc: t.workDesc },
+    { value: "Photography", label: t.photography,  icon: Aperture,  desc: t.photographyDesc },
+    { value: "Mixed",       label: t.mixed,        icon: Shuffle,   desc: t.mixedDesc },
+  ];
+
+  const PRIORITY_OPTIONS: { value: Priority; label: string; icon: any }[] = [
+    { value: "camera",      label: t.camera,      icon: Camera },
+    { value: "performance", label: t.performance, icon: Cpu },
+    { value: "battery",     label: t.battery,     icon: Battery },
+    { value: "display",     label: t.display,     icon: Monitor },
+    { value: "price",       label: t.price,       icon: DollarSign },
+    { value: "balanced",    label: t.balanced,    icon: Scale },
+  ];
 
   const handleContinue = () => {
     const budgetStr = `${budget[0]}-${budget[1]}`;
@@ -85,34 +87,34 @@ export default function Preferences() {
     <div className="min-h-[100dvh] flex flex-col bg-background text-foreground">
       <header className="border-b border-border/40 p-6 flex justify-between items-center sticky top-0 z-50 bg-background/80 backdrop-blur-xl">
         <Link href="/compare" className="flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-          <ArrowLeft className="w-4 h-4 mr-2" /> Back
+          <ArrowLeft className="w-4 h-4 me-2 rtl:rotate-180" /> {t.back}
         </Link>
         <span className="font-serif text-xl font-bold tracking-tight text-primary">PickyPhone.</span>
-        <div />
+        <LanguageToggle />
       </header>
 
       <main className="flex-1 max-w-3xl mx-auto w-full p-6 md:p-12 space-y-14">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">Personalise</p>
-          <h1 className="text-4xl font-serif font-bold mb-2">What matters to you?</h1>
-          <p className="text-muted-foreground text-lg">Tell us your priorities and we'll score each phone for you.</p>
+          <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">{t.personalise}</p>
+          <h1 className="text-4xl font-serif font-bold mb-2">{t.whatMatters}</h1>
+          <p className="text-muted-foreground text-lg">{t.tellUsPriorities}</p>
         </motion.div>
 
         {/* Step 1 — Budget */}
         <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} className="space-y-6">
           <div className="flex items-center gap-4">
             <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-mono text-sm border border-primary/20">1</span>
-            <h2 className="text-2xl font-serif">Budget Range</h2>
+            <h2 className="text-2xl font-serif">{t.budgetRange}</h2>
           </div>
           <div className="bg-card border border-border rounded-2xl p-6 space-y-5">
             <div className="flex items-center justify-between">
               <div className="text-center">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Min</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{t.min}</p>
                 <p className="text-2xl font-bold text-primary">${budget[0].toLocaleString()}</p>
               </div>
               <div className="text-muted-foreground text-sm">—</div>
               <div className="text-center">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Max</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{t.max}</p>
                 <p className="text-2xl font-bold text-primary">${budget[1].toLocaleString()}</p>
               </div>
             </div>
@@ -127,7 +129,7 @@ export default function Preferences() {
         <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="space-y-6">
           <div className="flex items-center gap-4">
             <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-mono text-sm border border-primary/20">2</span>
-            <h2 className="text-2xl font-serif">Usage Type</h2>
+            <h2 className="text-2xl font-serif">{t.usageType}</h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {USAGE_OPTIONS.map(opt => {
@@ -151,7 +153,7 @@ export default function Preferences() {
         <motion.section initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }} className="space-y-6">
           <div className="flex items-center gap-4">
             <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-mono text-sm border border-primary/20">3</span>
-            <h2 className="text-2xl font-serif">Top Priority</h2>
+            <h2 className="text-2xl font-serif">{t.topPriority}</h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {PRIORITY_OPTIONS.map(opt => {
@@ -173,8 +175,8 @@ export default function Preferences() {
           <div className="flex items-center gap-4">
             <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-mono text-sm border border-primary/20">4</span>
             <div>
-              <h2 className="text-2xl font-serif leading-tight">Your Current Phone</h2>
-              <p className="text-sm text-muted-foreground mt-0.5">Optional — unlocks upgrade analysis</p>
+              <h2 className="text-2xl font-serif leading-tight">{t.yourCurrentPhone}</h2>
+              <p className="text-sm text-muted-foreground mt-0.5">{t.currentPhoneOptional}</p>
             </div>
           </div>
 
@@ -182,7 +184,7 @@ export default function Preferences() {
             <div className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/20 rounded-xl">
               <Smartphone className="w-5 h-5 text-primary mt-0.5 shrink-0" />
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Select your current device and we'll calculate exactly how much each phone improves on Performance, Camera, Battery, and Display — with a clear <strong className="text-foreground">Worth It</strong> or <strong className="text-foreground">Not Worth It</strong> verdict.
+                {t.currentPhoneDesc}
               </p>
             </div>
 
@@ -190,7 +192,7 @@ export default function Preferences() {
               phones={phones}
               selectedId={currentPhoneId}
               onSelect={id => setCurrentPhoneId(id)}
-              placeholder="Search your current phone..."
+              placeholder={t.searchCurrentPhone}
             />
 
             {currentPhoneId && (
@@ -198,7 +200,7 @@ export default function Preferences() {
                 onClick={() => setCurrentPhoneId(null)}
                 className="text-xs text-muted-foreground hover:text-primary transition-colors underline-offset-2 hover:underline"
               >
-                Clear selection
+                {t.clearSelection}
               </button>
             )}
           </div>
@@ -210,7 +212,7 @@ export default function Preferences() {
             onClick={handleContinue}
             className="w-full md:w-auto px-12 py-6 rounded-full text-lg bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_30px_-5px_hsl(var(--primary)/0.5)] transition-all"
           >
-            See My Results
+            {t.seeMyResults}
           </Button>
         </motion.div>
       </main>

@@ -3,6 +3,7 @@ import { Phone } from "@/data/phones";
 import SpecRow from "./SpecRow";
 import PhoneIllustration from "./PhoneIllustration";
 import { WatchReviewButton } from "./ReviewButtons";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Props {
   phone: Phone;
@@ -18,64 +19,66 @@ interface Props {
 }
 
 function MatchBadge({ pct }: { pct: number }) {
+  const { t } = useLanguage();
   const style =
     pct >= 90 ? "text-primary border-primary/50 bg-primary/10 shadow-[0_0_12px_-4px_hsl(var(--primary)/0.6)]" :
     pct >= 75 ? "text-amber-400 border-amber-400/50 bg-amber-400/10" :
                 "text-orange-400 border-orange-400/50 bg-orange-400/10";
   return (
-    <div className={`absolute top-3 right-3 px-2.5 py-1 rounded-full border text-xs font-bold tracking-wide ${style}`}>
-      {pct}% match
+    <div className={`absolute top-3 end-3 px-2.5 py-1 rounded-full border text-xs font-bold tracking-wide ${style}`}>
+      {pct}% {t.match}
     </div>
   );
 }
 
-const SECTION_GROUPS = [
-  {
-    title: "Display",
-    rows: (p: Phone, w: Props["winners"]) => [
-      { label: "Size",         value: p.display.size },
-      { label: "Resolution",   value: p.display.resolution },
-      { label: "Type",         value: p.display.type },
-      { label: "Refresh Rate", value: p.display.refreshRate },
-      { label: "Quality Score",value: `${p.displayScore}/100`,      isWinner: w.displayScore === p.id },
-    ],
-  },
-  {
-    title: "Performance",
-    rows: (p: Phone, w: Props["winners"]) => [
-      { label: "Chipset",    value: p.performance.chipset },
-      { label: "RAM",        value: p.performance.ram },
-      { label: "Power Score",value: `${p.performance.score}/100`, isWinner: w.performanceScore === p.id },
-    ],
-  },
-  {
-    title: "Camera",
-    rows: (p: Phone, w: Props["winners"]) => [
-      { label: "Main",         value: p.camera.main },
-      { label: "Ultrawide",    value: p.camera.ultrawide },
-      { label: "Telephoto",    value: p.camera.telephoto },
-      { label: "Video",        value: p.camera.video },
-      { label: "Optics Score", value: `${p.camera.score}/100`, isWinner: w.cameraScore === p.id },
-    ],
-  },
-  {
-    title: "Battery",
-    rows: (p: Phone, w: Props["winners"]) => [
-      { label: "Capacity",        value: p.battery.capacity },
-      { label: "Charging",        value: p.battery.charging },
-      { label: "Endurance Score", value: `${p.battery.score}/100`, isWinner: w.batteryScore === p.id },
-    ],
-  },
-  {
-    title: "Storage",
-    rows: (p: Phone) => [
-      { label: "Options", value: p.storage.join(", ") },
-    ],
-  },
-];
-
 export default function PhoneCard({ phone, winners, matchPct, animationDelay = 0 }: Props) {
+  const { t } = useLanguage();
   const isPriceWinner = winners.price === phone.id;
+
+  const SECTION_GROUPS = [
+    {
+      title: t.display,
+      rows: (p: Phone, w: Props["winners"]) => [
+        { label: t.specSize,       value: p.display.size },
+        { label: t.resolution,     value: p.display.resolution },
+        { label: t.specType,       value: p.display.type },
+        { label: t.refreshRate,    value: p.display.refreshRate },
+        { label: t.qualityScore,   value: `${p.displayScore}/100`,      isWinner: w.displayScore === p.id },
+      ],
+    },
+    {
+      title: t.performance,
+      rows: (p: Phone, w: Props["winners"]) => [
+        { label: t.chipset,     value: p.performance.chipset },
+        { label: t.specRam,     value: p.performance.ram },
+        { label: t.powerScore,  value: `${p.performance.score}/100`, isWinner: w.performanceScore === p.id },
+      ],
+    },
+    {
+      title: t.camera,
+      rows: (p: Phone, w: Props["winners"]) => [
+        { label: t.specMain,        value: p.camera.main },
+        { label: t.specUltrawide,   value: p.camera.ultrawide },
+        { label: t.specTelephoto,   value: p.camera.telephoto },
+        { label: t.specVideo,       value: p.camera.video },
+        { label: t.opticsScore,     value: `${p.camera.score}/100`, isWinner: w.cameraScore === p.id },
+      ],
+    },
+    {
+      title: t.battery,
+      rows: (p: Phone, w: Props["winners"]) => [
+        { label: t.specCapacity,      value: p.battery.capacity },
+        { label: t.specCharging,      value: p.battery.charging },
+        { label: t.enduranceScore,    value: `${p.battery.score}/100`, isWinner: w.batteryScore === p.id },
+      ],
+    },
+    {
+      title: t.storage,
+      rows: (p: Phone, _w: Props["winners"]) => [
+        { label: t.specOptions, value: p.storage.join(", ") },
+      ],
+    },
+  ] as const satisfies { title: string; rows: (p: Phone, w: Props["winners"]) => { label: string; value: string; isWinner?: boolean }[] }[];
 
   return (
     <motion.div
@@ -88,7 +91,6 @@ export default function PhoneCard({ phone, winners, matchPct, animationDelay = 0
     >
       {matchPct !== undefined && <MatchBadge pct={matchPct} />}
 
-      {/* ── Header / Illustration ── */}
       <div className="p-5 pb-0 flex flex-col items-center text-center">
         <div className="w-full h-40 sm:h-48 mb-5 flex items-center justify-center px-6">
           <PhoneIllustration brand={phone.brand} name={phone.name} />
@@ -100,12 +102,11 @@ export default function PhoneCard({ phone, winners, matchPct, animationDelay = 0
         <h3 className="text-xl sm:text-2xl font-serif font-bold mb-1.5 leading-tight">{phone.name}</h3>
 
         <p className={`text-lg font-semibold mb-0.5 ${isPriceWinner ? "text-primary" : "text-foreground/80"}`}>
-          {isPriceWinner && <span className="text-xs mr-1">★</span>}
+          {isPriceWinner && <span className="text-xs me-1">★</span>}
           ${phone.price.toLocaleString()}
         </p>
         <p className="text-xs text-muted-foreground mb-4">{phone.year}</p>
 
-        {/* Colour swatches */}
         <div className="flex gap-2 mb-6 flex-wrap justify-center">
           {phone.colors.map(color => (
             <div
@@ -118,8 +119,7 @@ export default function PhoneCard({ phone, winners, matchPct, animationDelay = 0
         </div>
       </div>
 
-      {/* ── Specs ── */}
-      <div className="p-5 bg-background/40 flex-1 flex flex-col gap-6 text-left border-t border-border/40">
+      <div className="p-5 bg-background/40 flex-1 flex flex-col gap-6 text-start border-t border-border/40">
         <div className="flex justify-center">
           <WatchReviewButton phone={phone} />
         </div>
@@ -136,7 +136,7 @@ export default function PhoneCard({ phone, winners, matchPct, animationDelay = 0
                   key={row.label}
                   label={row.label}
                   value={row.value}
-                  isWinner={"isWinner" in row ? row.isWinner : false}
+                  isWinner={"isWinner" in row ? (row.isWinner as boolean) : false}
                   delay={(si * rows.length + ri) * 0.03 + animationDelay + 0.1}
                 />
               ))}
@@ -145,7 +145,6 @@ export default function PhoneCard({ phone, winners, matchPct, animationDelay = 0
         })}
       </div>
 
-      {/* Subtle gold bottom glow on hover */}
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
     </motion.div>
   );

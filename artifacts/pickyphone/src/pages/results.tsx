@@ -11,11 +11,13 @@ import { WatchComparisonButton } from "@/components/ReviewButtons";
 import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { useLanguage, LanguageToggle } from "@/context/LanguageContext";
 
 export default function Results() {
   const [, setLocation] = useLocation();
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const { t } = useLanguage();
 
   const {
     selectedPhones,
@@ -59,38 +61,38 @@ export default function Results() {
   return (
     <div className="min-h-[100dvh] flex flex-col bg-background text-foreground">
 
-      {/* ── Header ── */}
       <header className="border-b border-border/40 px-4 py-3 sticky top-0 z-50 bg-background/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/compare" className="flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-            <ArrowLeft className="w-4 h-4 mr-1.5" /> Back
+            <ArrowLeft className="w-4 h-4 me-1.5 rtl:rotate-180" /> {t.back}
           </Link>
           <span className="font-serif text-xl font-bold tracking-tight text-primary">PickyPhone.</span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleShare}
-            className={`flex items-center gap-1.5 text-sm border transition-all duration-300 ${
-              copied
-                ? "border-primary text-primary bg-primary/10"
-                : "border-border text-muted-foreground hover:border-primary/40 hover:text-primary"
-            }`}
-          >
-            {copied
-              ? <><Check className="w-3.5 h-3.5" />Copied!</>
-              : <><Share2 className="w-3.5 h-3.5" />Share</>}
-          </Button>
+          <div className="flex items-center gap-2">
+            <LanguageToggle />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleShare}
+              className={`flex items-center gap-1.5 text-sm border transition-all duration-300 ${
+                copied
+                  ? "border-primary text-primary bg-primary/10"
+                  : "border-border text-muted-foreground hover:border-primary/40 hover:text-primary"
+              }`}
+            >
+              {copied
+                ? <><Check className="w-3.5 h-3.5" />{t.copied}</>
+                : <><Share2 className="w-3.5 h-3.5" />{t.share}</>}
+            </Button>
+          </div>
         </div>
       </header>
 
-      {/* ── Main ── */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 py-6 md:px-8">
         {loading ? (
           <LoadingSkeleton count={selectedPhones.length} />
         ) : (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}>
 
-            {/* Best For You (personalised) */}
             {hasPrefs && bestMatch && (
               <BestForYouCard
                 phone={bestMatch}
@@ -101,12 +103,10 @@ export default function Results() {
               />
             )}
 
-            {/* Quick recommendation (no preferences) */}
             {!hasPrefs && recommendation && (
               <RecommendationBanner phone={recommendation.phone} reason={recommendation.reason} />
             )}
 
-            {/* Upgrade analysis */}
             {currentPhone && (
               <UpgradeSection
                 currentPhone={currentPhone}
@@ -114,10 +114,9 @@ export default function Results() {
               />
             )}
 
-            {/* Detailed comparison */}
             <div className="mt-14 mb-5 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
               <h2 className="text-2xl font-serif border-b border-border/50 pb-4 inline-block">
-                Detailed Comparison
+                {t.detailedComparison}
               </h2>
               <div className="pb-1 flex items-center gap-3">
                 <CompareTranslateButton phones={selectedPhones} />
@@ -150,6 +149,7 @@ function CompareTranslateButton({ phones }: { phones: { id: string; brand: strin
   const [loading, setLoading] = useState(false);
   const [comparison, setComparison] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   const handleOpen = async () => {
     setOpen(true);
@@ -166,7 +166,7 @@ function CompareTranslateButton({ phones }: { phones: { id: string; brand: strin
       const data = await res.json() as { comparison: string };
       setComparison(data.comparison);
     } catch {
-      setError("Couldn't generate comparison right now. Try again.");
+      setError(t.couldntGenerate);
     } finally {
       setLoading(false);
     }
@@ -192,7 +192,7 @@ function CompareTranslateButton({ phones }: { phones: { id: string; brand: strin
         className="group flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/5 text-primary font-semibold text-sm hover:bg-primary/12 hover:border-primary/60 transition-all duration-300"
       >
         <Languages className="w-4 h-4 group-hover:scale-110 transition-transform" />
-        Plain English Summary
+        {t.plainEnglishSummary}
       </button>
 
       <AnimatePresence>
@@ -214,7 +214,7 @@ function CompareTranslateButton({ phones }: { phones: { id: string; brand: strin
             >
               <button
                 onClick={() => setOpen(false)}
-                className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-border/60 text-muted-foreground transition-colors"
+                className="absolute top-4 end-4 p-1.5 rounded-full hover:bg-border/60 text-muted-foreground transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -224,7 +224,7 @@ function CompareTranslateButton({ phones }: { phones: { id: string; brand: strin
                   <Languages className="w-4 h-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold tracking-widest text-primary uppercase">Plain English</p>
+                  <p className="text-[10px] font-bold tracking-widest text-primary uppercase">{t.plainEnglish}</p>
                   <h3 className="text-base font-serif font-bold leading-tight">{phoneNames}</h3>
                 </div>
               </div>
@@ -232,7 +232,7 @@ function CompareTranslateButton({ phones }: { phones: { id: string; brand: strin
               {loading && (
                 <div className="flex flex-col items-center justify-center py-12 gap-3 text-muted-foreground">
                   <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                  <p className="text-sm">Translating specs into plain English…</p>
+                  <p className="text-sm">{t.translatingSpecs}</p>
                 </div>
               )}
 

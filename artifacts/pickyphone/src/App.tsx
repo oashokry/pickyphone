@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ComparisonProvider } from "@/context/ComparisonContext";
+import { LanguageProvider } from "@/context/LanguageContext";
 import ScrollToTop from "@/components/ScrollToTop";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
@@ -20,7 +21,20 @@ function Router() {
 }
 
 function App() {
-  return <QueryClientProvider client={queryClient}><ComparisonProvider><TooltipProvider><WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>{/* Routes */}<Router /></WouterRouter><Toaster /></TooltipProvider></ComparisonProvider></QueryClientProvider>;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <LanguageProvider>
+        <ComparisonProvider>
+          <TooltipProvider>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+              <Router />
+            </WouterRouter>
+            <Toaster />
+          </TooltipProvider>
+        </ComparisonProvider>
+      </LanguageProvider>
+    </QueryClientProvider>
+  );
 }
 
 export default App;

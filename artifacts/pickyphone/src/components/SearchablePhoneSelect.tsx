@@ -16,6 +16,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Props {
   phones: Phone[];
@@ -24,8 +25,10 @@ interface Props {
   placeholder?: string;
 }
 
-export default function SearchablePhoneSelect({ phones, selectedId, onSelect, placeholder = "Select phone..." }: Props) {
+export default function SearchablePhoneSelect({ phones, selectedId, onSelect, placeholder }: Props) {
   const [open, setOpen] = useState(false);
+  const { t } = useLanguage();
+  const effectivePlaceholder = placeholder ?? t.selectPhone;
 
   const selectedPhone = selectedId ? phones.find(p => p.id === selectedId) : null;
 
@@ -50,16 +53,16 @@ export default function SearchablePhoneSelect({ phones, selectedId, onSelect, pl
           {selectedPhone ? (
             <span className="truncate">{selectedPhone.brand} {selectedPhone.name} <span className="text-muted-foreground text-xs">({selectedPhone.year})</span></span>
           ) : (
-            <span className="text-muted-foreground">{placeholder}</span>
+            <span className="text-muted-foreground">{effectivePlaceholder}</span>
           )}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown className="ms-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0 border-border bg-card max-h-[420px] overflow-hidden">
         <Command className="bg-transparent">
-          <CommandInput placeholder="Search brand or model..." className="border-none focus:ring-0" />
+          <CommandInput placeholder={t.searchBrandModelPlaceholder} className="border-none focus:ring-0" />
           <CommandList className="max-h-[360px]">
-            <CommandEmpty>No phone found.</CommandEmpty>
+            <CommandEmpty>{t.noPhoneFound}</CommandEmpty>
             {sortedBrands.map((brand) => (
               <CommandGroup key={brand} heading={<span className="text-primary/70 text-xs font-bold tracking-widest uppercase">{brand}</span>}>
                 {byBrand[brand]
@@ -77,12 +80,12 @@ export default function SearchablePhoneSelect({ phones, selectedId, onSelect, pl
                     >
                       <Check
                         className={cn(
-                          "mr-2 h-4 w-4 shrink-0",
+                          "me-2 h-4 w-4 shrink-0",
                           selectedId === phone.id ? "opacity-100 text-primary" : "opacity-0"
                         )}
                       />
                       <span className="flex-1 truncate">{phone.name}</span>
-                      <span className="ml-2 text-xs text-muted-foreground shrink-0">{phone.year} · ${phone.price}</span>
+                      <span className="ms-2 text-xs text-muted-foreground shrink-0">{phone.year} · ${phone.price}</span>
                     </CommandItem>
                   ))}
               </CommandGroup>

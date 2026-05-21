@@ -8,15 +8,7 @@ import { Camera, Cpu, Battery, Monitor, DollarSign, Scale } from "lucide-react";
 import Footer from "@/components/Footer";
 import SearchablePhoneSelect from "@/components/SearchablePhoneSelect";
 import { phones } from "@/data/phones";
-
-const PRIORITIES: { value: Priority; label: string; icon: any }[] = [
-  { value: "camera",      label: "Camera",      icon: Camera },
-  { value: "performance", label: "Performance", icon: Cpu },
-  { value: "battery",     label: "Battery",     icon: Battery },
-  { value: "display",     label: "Display",     icon: Monitor },
-  { value: "price",       label: "Price",       icon: DollarSign },
-  { value: "balanced",    label: "Balanced",    icon: Scale },
-];
+import { useLanguage, LanguageToggle } from "@/context/LanguageContext";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
@@ -25,11 +17,21 @@ const fadeUp = {
 
 export default function Compare() {
   const [, setLocation] = useLocation();
+  const { t } = useLanguage();
   const {
     slotsCount, setSlotsCount,
     selectedPhoneIds, setSelectedPhoneId,
     priority, setPriority,
   } = useComparison();
+
+  const PRIORITIES: { value: Priority; label: string; icon: any }[] = [
+    { value: "camera",      label: t.camera,      icon: Camera },
+    { value: "performance", label: t.performance, icon: Cpu },
+    { value: "battery",     label: t.battery,     icon: Battery },
+    { value: "display",     label: t.display,     icon: Monitor },
+    { value: "price",       label: t.price,       icon: DollarSign },
+    { value: "balanced",    label: t.balanced,    icon: Scale },
+  ];
 
   const isReady = selectedPhoneIds.slice(0, slotsCount).every(id => id !== null);
 
@@ -49,22 +51,19 @@ export default function Compare() {
     <div className="min-h-[100dvh] flex flex-col bg-background text-foreground">
       <header className="border-b border-border/40 px-5 py-4 flex justify-between items-center sticky top-0 z-50 bg-background/80 backdrop-blur-xl">
         <Link href="/" className="font-serif text-xl font-bold tracking-tight text-primary">PickyPhone.</Link>
+        <LanguageToggle />
       </header>
 
       <main className="flex-1 max-w-4xl mx-auto w-full px-5 py-8 md:px-12 md:py-14 space-y-14">
 
-        {/* Intro */}
         <motion.div variants={fadeUp} initial="hidden" animate="show" custom={0}>
-          <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">Compare</p>
-          <h1 className="text-3xl sm:text-4xl font-serif font-bold mb-2">Build Your Comparison</h1>
-          <p className="text-muted-foreground text-base sm:text-lg">
-            Pick your devices and what you care about most.
-          </p>
+          <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">{t.compareLabel}</p>
+          <h1 className="text-3xl sm:text-4xl font-serif font-bold mb-2">{t.buildYourComparison}</h1>
+          <p className="text-muted-foreground text-base sm:text-lg">{t.pickDevices}</p>
         </motion.div>
 
-        {/* Step 1 — count */}
         <motion.section variants={fadeUp} initial="hidden" animate="show" custom={0.08} className="space-y-5">
-          <StepLabel n={1} text="How many phones?" />
+          <StepLabel n={1} text={t.howManyPhones} />
           <div className="flex gap-3">
             {[2, 3, 4].map(num => (
               <button
@@ -77,35 +76,33 @@ export default function Compare() {
                     : "bg-card border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
                 }`}
               >
-                {num} Phones
+                {t.phonesCount(num)}
               </button>
             ))}
           </div>
         </motion.section>
 
-        {/* Step 2 — devices */}
         <motion.section variants={fadeUp} initial="hidden" animate="show" custom={0.16} className="space-y-5">
-          <StepLabel n={2} text="Select Devices" />
+          <StepLabel n={2} text={t.selectDevices} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {Array.from({ length: slotsCount }).map((_, idx) => (
               <Card key={idx} className="p-4 bg-card border-border">
                 <label className="text-[10px] text-muted-foreground uppercase tracking-widest mb-2 block font-semibold">
-                  Phone {idx + 1}
+                  {t.phoneN(idx + 1)}
                 </label>
                 <SearchablePhoneSelect
                   phones={phones}
                   selectedId={selectedPhoneIds[idx]}
                   onSelect={id => setSelectedPhoneId(idx, id)}
-                  placeholder="Search brand or model..."
+                  placeholder={t.searchBrandModel}
                 />
               </Card>
             ))}
           </div>
         </motion.section>
 
-        {/* Step 3 — quick priority */}
         <motion.section variants={fadeUp} initial="hidden" animate="show" custom={0.24} className="space-y-5">
-          <StepLabel n={3} text="Quick Priority" sub="(optional — for direct compare)" />
+          <StepLabel n={3} text={t.quickPriority} sub={t.quickPrioritySub} />
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {PRIORITIES.map(p => {
               const Icon = p.icon;
@@ -129,7 +126,6 @@ export default function Compare() {
           </div>
         </motion.section>
 
-        {/* CTAs */}
         <motion.div
           variants={fadeUp} initial="hidden" animate="show" custom={0.32}
           className="pt-6 flex flex-col sm:flex-row gap-3 justify-end"
@@ -142,7 +138,7 @@ export default function Compare() {
             className="sm:w-auto px-8 py-6 rounded-full text-sm border-border text-muted-foreground
               hover:border-primary/40 hover:text-primary disabled:opacity-40 transition-all"
           >
-            Skip — Compare Only
+            {t.skipCompareOnly}
           </Button>
           <Button
             size="lg"
@@ -154,7 +150,7 @@ export default function Compare() {
               disabled:opacity-50 disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none
               shadow-[0_0_30px_-5px_hsl(var(--primary)/0.5)] transition-all duration-400"
           >
-            Personalise & Compare
+            {t.personaliseCompare}
           </Button>
         </motion.div>
       </main>
@@ -171,7 +167,7 @@ function StepLabel({ n, text, sub }: { n: number; text: string; sub?: string }) 
         {n}
       </span>
       <h2 className="text-xl sm:text-2xl font-serif">{text}
-        {sub && <span className="ml-2 text-muted-foreground text-sm sm:text-base font-sans font-normal">{sub}</span>}
+        {sub && <span className="ms-2 text-muted-foreground text-sm sm:text-base font-sans font-normal">{sub}</span>}
       </h2>
     </div>
   );

@@ -1,7 +1,6 @@
 import { PlayCircle, Film } from "lucide-react";
 import { Phone } from "@/data/phones";
-
-// ─── URL helpers (pure functions) ─────────────────────────────────────────────
+import { useLanguage } from "@/context/LanguageContext";
 
 function buildReviewUrl(phone: Phone): string {
   const query = `${phone.brand} ${phone.name} review`;
@@ -13,13 +12,12 @@ function buildComparisonUrl(phones: Phone[]): string {
   return `https://www.youtube.com/results?search_query=${encodeURIComponent(`${names} review`)}`;
 }
 
-// ─── Single phone review button ───────────────────────────────────────────────
-
 interface ReviewButtonProps {
   phone: Phone;
 }
 
 export function WatchReviewButton({ phone }: ReviewButtonProps) {
+  const { t } = useLanguage();
   const handleClick = () => window.open(buildReviewUrl(phone), "_blank", "noopener,noreferrer");
 
   return (
@@ -33,22 +31,20 @@ export function WatchReviewButton({ phone }: ReviewButtonProps) {
         transition-all duration-300 cursor-pointer"
     >
       <PlayCircle className="w-4 h-4 shrink-0 group-hover:scale-110 transition-transform duration-200" />
-      Watch Reviews
+      {t.watchReviews}
     </button>
   );
 }
-
-// ─── Multi-phone comparison reviews button ────────────────────────────────────
 
 interface ComparisonButtonProps {
   phones: Phone[];
 }
 
 export function WatchComparisonButton({ phones }: ComparisonButtonProps) {
+  const { t } = useLanguage();
   if (phones.length < 2) return null;
 
   const handleClick = () => window.open(buildComparisonUrl(phones), "_blank", "noopener,noreferrer");
-
   const label = phones.map(p => p.name).join(" vs ");
 
   return (
@@ -63,7 +59,7 @@ export function WatchComparisonButton({ phones }: ComparisonButtonProps) {
         transition-all duration-300 cursor-pointer"
     >
       <Film className="w-4 h-4 shrink-0 group-hover:scale-110 transition-transform duration-200" />
-      Watch Comparison
+      {t.watchComparison}
     </button>
   );
 }

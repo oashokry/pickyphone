@@ -5,6 +5,7 @@ import { WatchReviewButton } from "./ReviewButtons";
 import { Phone } from "@/data/phones";
 import { UsageType } from "@/lib/scoring";
 import PhoneIllustration from "./PhoneIllustration";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface Props {
   phone: Phone;
@@ -30,30 +31,36 @@ function AnimatedCounter({ target }: { target: number }) {
   return <>{count}</>;
 }
 
-const USAGE_LABEL: Record<UsageType, string> = {
-  Gaming: "Gaming", Casual: "Casual", Work: "Work", Photography: "Photography", Mixed: "Mixed",
-};
-
 export default function BestForYouCard({ phone, matchPct, reason, usageType, budget }: Props) {
+  const { t } = useLanguage();
+
+  const USAGE_LABEL: Record<UsageType, string> = {
+    Gaming: t.gaming,
+    Casual: t.casual,
+    Work: t.work,
+    Photography: t.photography,
+    Mixed: t.mixed,
+  };
+
   const ringColor =
     matchPct >= 90 ? "hsl(43 65% 53%)" :
     matchPct >= 75 ? "#f59e0b" :
                      "#f97316";
 
   const badgeLabel =
-    matchPct >= 90 ? "Perfect Match" :
-    matchPct >= 75 ? "Great Match" :
-                     "Good Match";
+    matchPct >= 90 ? t.perfectMatch :
+    matchPct >= 75 ? t.greatMatch :
+                     t.goodMatch;
 
   const R = 42;
   const CIRC = 2 * Math.PI * R;
   const offset = CIRC * (1 - matchPct / 100);
 
   const statChips = [
-    { label: "Camera",      value: `${phone.camera.score}/100` },
-    { label: "Performance", value: `${phone.performance.score}/100` },
-    { label: "Battery",     value: `${phone.battery.score}/100` },
-    { label: "Price",       value: `$${phone.price.toLocaleString()}` },
+    { label: t.camera,      value: `${phone.camera.score}/100` },
+    { label: t.performance, value: `${phone.performance.score}/100` },
+    { label: t.battery,     value: `${phone.battery.score}/100` },
+    { label: t.price,       value: `$${phone.price.toLocaleString()}` },
   ];
 
   return (
@@ -65,38 +72,32 @@ export default function BestForYouCard({ phone, matchPct, reason, usageType, bud
         bg-gradient-to-br from-card via-card to-primary/5
         shadow-[0_0_50px_-15px_hsl(var(--primary)/0.4)] mt-8 mb-8"
     >
-      {/* Shimmer sweep */}
       <motion.div
         className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-primary/7 to-transparent pointer-events-none"
         animate={{ translateX: ["-100%", "200%"] }}
         transition={{ duration: 4, repeat: Infinity, repeatDelay: 7, ease: "easeInOut" }}
       />
 
-      {/* Gold top bar */}
       <div className="h-[3px] w-full bg-gradient-to-r from-primary/40 via-primary to-primary/40" />
 
       <div className="p-5 sm:p-8">
-        {/* Header */}
         <div className="flex flex-wrap items-center gap-3 mb-6">
           <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/15 border border-primary/30 rounded-full">
             <Sparkles className="w-3.5 h-3.5 text-primary" />
-            <span className="text-xs font-bold tracking-widest text-primary uppercase">Best For You</span>
+            <span className="text-xs font-bold tracking-widest text-primary uppercase">{t.bestForYou}</span>
           </div>
           <span className="text-xs text-muted-foreground">
             {USAGE_LABEL[usageType]} · ${budget[0].toLocaleString()}–${budget[1].toLocaleString()}
           </span>
         </div>
 
-        {/* Body: stacks on mobile, side-by-side on md+ */}
         <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-center md:items-start">
 
-          {/* Illustration */}
           <div className="w-24 md:w-32 shrink-0">
             <PhoneIllustration brand={phone.brand} name={phone.name} />
           </div>
 
-          {/* Info */}
-          <div className="flex-1 min-w-0 text-center md:text-left">
+          <div className="flex-1 min-w-0 text-center md:text-start">
             <p className="text-[10px] font-bold tracking-[0.22em] text-primary/70 uppercase mb-1">
               {phone.brand}
             </p>
@@ -107,7 +108,6 @@ export default function BestForYouCard({ phone, matchPct, reason, usageType, bud
               {reason}
             </p>
 
-            {/* Stat chips */}
             <div className="flex flex-wrap gap-2 justify-center md:justify-start">
               {statChips.map(({ label, value }) => (
                 <div key={label} className="px-3 py-1.5 bg-background/80 rounded-lg border border-border/60 text-xs">
@@ -117,13 +117,11 @@ export default function BestForYouCard({ phone, matchPct, reason, usageType, bud
               ))}
             </div>
 
-            {/* Watch Reviews */}
             <div className="flex justify-center md:justify-start mt-4">
               <WatchReviewButton phone={phone} />
             </div>
           </div>
 
-          {/* Match ring */}
           <div className="shrink-0 flex flex-col items-center gap-1.5">
             <div className="relative w-28 h-28">
               <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
@@ -143,7 +141,7 @@ export default function BestForYouCard({ phone, matchPct, reason, usageType, bud
                 <span className="text-2xl font-bold leading-none" style={{ color: ringColor }}>
                   <AnimatedCounter target={matchPct} />%
                 </span>
-                <span className="text-[10px] text-muted-foreground mt-0.5 tracking-wider">match</span>
+                <span className="text-[10px] text-muted-foreground mt-0.5 tracking-wider">{t.match}</span>
               </div>
             </div>
             <span className="text-xs font-bold" style={{ color: ringColor }}>{badgeLabel}</span>
