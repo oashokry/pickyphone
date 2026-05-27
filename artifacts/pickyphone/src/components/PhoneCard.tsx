@@ -108,6 +108,7 @@ export default function PhoneCard({ phone, winners, matchPct, animationDelay = 0
         </p>
         <p className="text-xs text-muted-foreground mb-4">{phone.year}</p>
 
+        <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50 mb-1.5">Available Colors</p>
         <div className="flex gap-2 mb-6 flex-wrap justify-center">
           {phone.colors.map(color => (
             <div

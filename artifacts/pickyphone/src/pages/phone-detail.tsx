@@ -241,6 +241,7 @@ export default function PhoneDetail() {
               <h1 className="text-2xl sm:text-3xl font-serif font-bold text-center mb-1">{phone.name}</h1>
               <p className="text-3xl font-bold text-primary mb-1">${phone.price.toLocaleString()}</p>
               <p className="text-sm text-muted-foreground mb-4">{phone.year}</p>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50 mb-2">Available Colors</p>
               <div className="flex gap-2.5 flex-wrap justify-center mb-5">
                 {phone.colors.map(c => (
                   <div key={c.hex} title={c.name} className="group relative">
