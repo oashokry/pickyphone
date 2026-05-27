@@ -23,7 +23,7 @@ export function WatchReviewButton({ phone }: ReviewButtonProps) {
   return (
     <button
       onClick={handleClick}
-      className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full
+      className="group flex items-center justify-center gap-2 w-full px-5 py-2.5 rounded-full
         border border-primary/40 bg-primary/8
         text-primary text-sm font-semibold
         hover:bg-primary hover:text-primary-foreground hover:border-primary
