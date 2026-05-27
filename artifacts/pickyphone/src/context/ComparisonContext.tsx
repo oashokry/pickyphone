@@ -14,6 +14,7 @@ interface ComparisonContextType {
   setUsageType: (u: UsageType) => void;
   currentPhoneId: string | null;
   setCurrentPhoneId: (id: string | null) => void;
+  resetComparison: () => void;
 }
 
 const ComparisonContext = createContext<ComparisonContextType | undefined>(undefined);
@@ -25,6 +26,15 @@ export function ComparisonProvider({ children }: { children: ReactNode }) {
   const [budget, setBudget] = useState<[number, number]>([200, 1200]);
   const [usageType, setUsageType] = useState<UsageType>("Mixed");
   const [currentPhoneId, setCurrentPhoneId] = useState<string | null>(null);
+
+  const resetComparison = () => {
+    setSlotsCount(2);
+    setSelectedPhoneIds([null, null]);
+    setPriority("balanced");
+    setBudget([200, 1200]);
+    setUsageType("Mixed");
+    setCurrentPhoneId(null);
+  };
 
   const handleSetSlotsCount = (count: number) => {
     setSlotsCount(count);
@@ -51,6 +61,7 @@ export function ComparisonProvider({ children }: { children: ReactNode }) {
       budget, setBudget,
       usageType, setUsageType,
       currentPhoneId, setCurrentPhoneId,
+      resetComparison,
     }}>
       {children}
     </ComparisonContext.Provider>

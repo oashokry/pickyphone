@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -7,12 +8,18 @@ import Footer from "@/components/Footer";
 import Seo from "@/components/Seo";
 import { getCanonicalUrl, homeDescription, homeKeywords, homeTitle } from "@/lib/seo";
 import { useLanguage, LanguageToggle } from "@/context/LanguageContext";
+import { useComparison } from "@/context/ComparisonContext";
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.12, delayChildren: 0.55 } } };
 const fadeUp = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } } };
 
 export default function Home() {
   const { t } = useLanguage();
+  const { resetComparison } = useComparison();
+
+  useEffect(() => {
+    resetComparison();
+  }, []);
   const url = getCanonicalUrl("/");
 
   const FEATURES = [
