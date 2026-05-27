@@ -89,7 +89,7 @@ export default function Preferences() {
         <Link href="/compare" className="flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
           <ArrowLeft className="w-4 h-4 me-2 rtl:rotate-180" /> {t.back}
         </Link>
-        <span className="font-serif text-xl font-bold tracking-tight text-primary">PickyPhone.</span>
+        <Link href="/" className="font-serif text-xl font-bold tracking-tight text-primary hover:opacity-80 transition-opacity">PickyPhone.</Link>
         <LanguageToggle />
       </header>
 

@@ -73,7 +73,7 @@ export default function Results() {
           <Link href="/compare" className="flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
             <ArrowLeft className="w-4 h-4 me-1.5 rtl:rotate-180" /> {t.back}
           </Link>
-          <span className="font-serif text-xl font-bold tracking-tight text-primary">PickyPhone.</span>
+          <Link href="/" className="font-serif text-xl font-bold tracking-tight text-primary hover:opacity-80 transition-opacity">PickyPhone.</Link>
           <div className="flex items-center gap-2">
             <LanguageToggle />
             <Button
