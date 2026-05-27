@@ -10,16 +10,19 @@ interface Props {
   candidates: Phone[];
 }
 
-function DeltaBar({ label, delta, delay }: { label: string; delta: number; delay: number }) {
+function DeltaBar({ label, description, delta, delay }: { label: string; description: string; delta: number; delay: number }) {
   const pos = delta > 2;
   const neg = delta < -2;
   const barWidth = Math.min(Math.abs(delta * 1.5), 100);
 
   return (
     <div className="space-y-1.5">
-      <div className="flex justify-between items-center text-xs">
-        <span className="text-muted-foreground font-medium">{label}</span>
-        <span className={`font-bold flex items-center gap-1 ${pos ? "text-emerald-400" : neg ? "text-red-400" : "text-muted-foreground"}`}>
+      <div className="flex justify-between items-start text-xs gap-2">
+        <div>
+          <span className="text-muted-foreground font-medium">{label}</span>
+          <p className="text-[10px] text-muted-foreground/50 leading-tight mt-0.5">{description}</p>
+        </div>
+        <span className={`font-bold flex items-center gap-1 shrink-0 mt-0.5 ${pos ? "text-emerald-400" : neg ? "text-red-400" : "text-muted-foreground"}`}>
           {pos
             ? <TrendingUp className="w-3 h-3" />
             : neg
@@ -86,10 +89,10 @@ function UpgradeCard({ currentPhone, candidate, index }: { currentPhone: Phone; 
       </div>
 
       <div className="space-y-2.5">
-        <DeltaBar label={t.performance} delta={a.performanceDelta} delay={index * 0.1 + 0.3} />
-        <DeltaBar label={t.camera}      delta={a.cameraDelta}      delay={index * 0.1 + 0.38} />
-        <DeltaBar label={t.battery}     delta={a.batteryDelta}     delay={index * 0.1 + 0.46} />
-        <DeltaBar label={t.display}     delta={a.displayDelta}     delay={index * 0.1 + 0.54} />
+        <DeltaBar label={t.performance} description="Speed, gaming & multitasking"  delta={a.performanceDelta} delay={index * 0.1 + 0.3} />
+        <DeltaBar label={t.camera}      description="Photo & video quality"          delta={a.cameraDelta}      delay={index * 0.1 + 0.38} />
+        <DeltaBar label={t.battery}     description="How long it lasts per charge"   delta={a.batteryDelta}     delay={index * 0.1 + 0.46} />
+        <DeltaBar label={t.display}     description="Screen sharpness & smoothness"  delta={a.displayDelta}     delay={index * 0.1 + 0.54} />
       </div>
 
       <div className="flex items-center justify-between pt-3 border-t border-border/50">
