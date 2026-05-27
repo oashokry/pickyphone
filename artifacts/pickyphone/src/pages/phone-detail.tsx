@@ -1,7 +1,8 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation, useParams } from "wouter";
-import { ArrowLeft, GitCompare, Sparkles, Languages, X, Loader2 } from "lucide-react";
+import { ArrowLeft, GitCompare, Sparkles, Languages, X, Loader2, Monitor, Cpu, Camera, BatteryCharging, Layers } from "lucide-react";
 import { useState } from "react";
+import type { ReactNode } from "react";
 import { phones, type Phone } from "@/data/phones";
 import { useComparison } from "@/context/ComparisonContext";
 import PhoneIllustration from "@/components/PhoneIllustration";
@@ -15,19 +16,180 @@ import { useLanguage, LanguageToggle } from "@/context/LanguageContext";
 
 const fadeUp = { hidden: { opacity: 0, y: 16 }, show: (d: number) => ({ opacity: 1, y: 0, transition: { duration: 0.5, delay: d, ease: [0.22, 1, 0.36, 1] } }) };
 
-function SpecSection({ title, rows, delay }: { title: string; rows: { label: string; value: string }[]; delay: number }) {
+// ── Helpers ────────────────────────────────────────────────────────────────────
+
+function SpecTag({ label }: { label: string }) {
   return (
-    <motion.div variants={fadeUp} initial="hidden" animate="show" custom={delay} className="rounded-2xl border border-border bg-card overflow-hidden">
-      <div className="px-5 py-3 border-b border-primary/15 bg-primary/5">
-        <h3 className="text-xs font-serif font-bold text-primary uppercase tracking-widest">{title}</h3>
+    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border border-primary/20 bg-primary/8 text-primary">
+      {label}
+    </span>
+  );
+}
+
+function SpecScoreBar({ score, delay }: { score: number; delay: number }) {
+  const color = score >= 90 ? "from-emerald-500 to-emerald-400" : score >= 75 ? "from-amber-500 to-amber-400" : "from-red-500 to-red-400";
+  const label = score >= 90 ? "text-emerald-400" : score >= 75 ? "text-amber-400" : "text-red-400";
+  return (
+    <div className="flex items-center gap-3">
+      <div className="flex-1 h-2 rounded-full bg-border overflow-hidden">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${score}%` }}
+          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay }}
+          className={`h-full rounded-full bg-gradient-to-r ${color}`}
+        />
       </div>
-      <div className="divide-y divide-border/40">
-        {rows.map(row => (
-          <div key={row.label} className="flex justify-between items-center px-5 py-3 gap-4">
-            <span className="text-xs text-muted-foreground shrink-0">{row.label}</span>
-            <span className="text-sm text-end font-medium leading-snug">{row.value}</span>
+      <span className={`text-sm font-bold w-14 text-end ${label}`}>{score}/100</span>
+    </div>
+  );
+}
+
+function getDisplayTags(phone: Phone): string[] {
+  const tags: string[] = [];
+  const type = phone.display.type.toLowerCase();
+  const rate = phone.display.refreshRate;
+  const sz = parseFloat(phone.display.size);
+  if (type.includes("oled") || type.includes("amoled")) tags.push("OLED");
+  if (type.includes("ltpo")) tags.push("LTPO Adaptive");
+  if (rate.includes("144") || rate.includes("165") || rate.includes("120")) tags.push(`${rate} Smooth`);
+  if (sz >= 6.7) tags.push("Large Display");
+  if (phone.displayScore >= 93) tags.push("Best-in-Class");
+  return tags;
+}
+
+function getCameraTags(phone: Phone): string[] {
+  const tags: string[] = [];
+  const video = phone.camera.video.toLowerCase();
+  const tele = phone.camera.telephoto.toLowerCase();
+  const mpMatch = phone.camera.main.match(/(\d+)MP/i);
+  if (mpMatch) tags.push(`${mpMatch[1]}MP Main`);
+  if (video.includes("4k@120") || video.includes("4k 120")) tags.push("4K@120fps");
+  else if (video.includes("8k")) tags.push("8K Video");
+  else if (video.includes("4k")) tags.push("4K Video");
+  if (video.includes("prores") || video.includes("log")) tags.push("ProRes Log");
+  if (tele.includes("5×") || tele.includes("5x")) tags.push("5× Optical Zoom");
+  else if (tele.includes("10×") || tele.includes("10x")) tags.push("10× Optical Zoom");
+  else if (tele.includes("3×") || tele.includes("3x")) tags.push("3× Optical Zoom");
+  if (phone.camera.score >= 95) tags.push("Top-Tier Camera");
+  return tags;
+}
+
+function getPerfTags(phone: Phone): string[] {
+  const tags: string[] = [];
+  const chip = phone.performance.chipset.toLowerCase();
+  const ram = parseInt(phone.performance.ram);
+  if (chip.includes("a18 pro") || chip.includes("a17 pro") || chip.includes("snapdragon 8 elite") || chip.includes("dimensity 9400")) tags.push("Flagship Chip");
+  if (chip.includes("a18") || chip.includes("snapdragon 8 elite") || chip.includes("dimensity 9400") || chip.includes("3nm")) tags.push("3nm Process");
+  if (!isNaN(ram)) tags.push(`${ram}GB RAM`);
+  if (phone.performance.score >= 95) tags.push("Elite Speed");
+  return tags;
+}
+
+function getBatteryTags(phone: Phone): string[] {
+  const tags: string[] = [];
+  const charging = phone.battery.charging.toLowerCase();
+  const mah = parseInt(phone.battery.capacity.replace(/[^0-9]/g, ""));
+  if (mah >= 5000) tags.push("5000+ mAh");
+  else if (mah >= 4500) tags.push("4500+ mAh");
+  else if (mah >= 4000) tags.push("4000+ mAh");
+  if (charging.includes("magsafe") || charging.includes("wireless") || charging.includes("qi")) tags.push("Wireless Charging");
+  const wMatch = charging.match(/(\d+)w/i);
+  if (wMatch) {
+    const w = parseInt(wMatch[1]);
+    if (w >= 65) tags.push("Super Fast Charge");
+    else if (w >= 30) tags.push("Fast Charging");
+  }
+  if (phone.battery.score >= 90) tags.push("All-Day Battery");
+  return tags;
+}
+
+function displaySummary(phone: Phone): string {
+  const { size, type, refreshRate } = phone.display;
+  const s = phone.displayScore;
+  if (s >= 95) return `The ${size} ${type} panel with ${refreshRate} refresh is among the sharpest displays available — vivid colors, fluid motion, and excellent outdoor brightness.`;
+  if (s >= 85) return `A premium ${type} screen at ${size} with ${refreshRate} — expect rich colors, deep blacks, and smooth scrolling in all conditions.`;
+  return `The ${size} ${type} panel handles everyday use well with solid clarity and ${refreshRate} refresh.`;
+}
+
+function cameraSummary(phone: Phone): string {
+  const s = phone.camera.score;
+  if (s >= 95) return `Elite camera system — the ${phone.camera.main} main sensor, ${phone.camera.telephoto} telephoto, and ${phone.camera.video} video put this among the best. Every focal length delivers.`;
+  if (s >= 85) return `A versatile camera trio with ${phone.camera.main} main and ${phone.camera.video} video — ideal for photographers and content creators alike.`;
+  return `Solid imaging with ${phone.camera.main} and ${phone.camera.video} support for everyday photography and video.`;
+}
+
+function perfSummary(phone: Phone): string {
+  const s = phone.performance.score;
+  if (s >= 95) return `The ${phone.performance.chipset} with ${phone.performance.ram} is a powerhouse — no game, app, or multitasking scenario will slow it down. Future-proof for years.`;
+  if (s >= 85) return `The ${phone.performance.chipset} and ${phone.performance.ram} handle heavy workloads, gaming, and multitasking without hesitation.`;
+  return `The ${phone.performance.chipset} and ${phone.performance.ram} deliver smooth everyday performance for most tasks.`;
+}
+
+function batterySummary(phone: Phone): string {
+  const s = phone.battery.score;
+  if (s >= 90) return `The ${phone.battery.capacity} cell is built for marathon days. Combined with ${phone.battery.charging}, top-ups are quick and you rarely hit empty.`;
+  if (s >= 80) return `Reliable all-day endurance with a ${phone.battery.capacity} cell and ${phone.battery.charging} — a safe pick for heavy users.`;
+  return `The ${phone.battery.capacity} battery covers a typical day with ${phone.battery.charging} available when you need a boost.`;
+}
+
+// ── Rich spec section ──────────────────────────────────────────────────────────
+
+interface RichSpecProps {
+  title: string;
+  icon: ReactNode;
+  score?: number;
+  tags?: string[];
+  rows: { label: string; value: string }[];
+  summary?: string;
+  delay: number;
+}
+
+function RichSpecSection({ title, icon, score, tags, rows, summary, delay }: RichSpecProps) {
+  return (
+    <motion.div variants={fadeUp} initial="hidden" animate="show" custom={delay}
+      className="rounded-2xl border border-border bg-card overflow-hidden">
+      <div className="px-5 py-4 border-b border-primary/15 bg-primary/5 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+            {icon}
           </div>
-        ))}
+          <h3 className="text-sm font-serif font-bold text-primary uppercase tracking-widest">{title}</h3>
+        </div>
+        {score !== undefined && (
+          <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border shrink-0 ${score >= 90 ? "text-emerald-400 border-emerald-400/30 bg-emerald-400/10" : score >= 75 ? "text-amber-400 border-amber-400/30 bg-amber-400/10" : "text-red-400 border-red-400/30 bg-red-400/10"}`}>
+            {score}/100
+          </span>
+        )}
+      </div>
+
+      <div className="p-5 space-y-4">
+        {score !== undefined && (
+          <div className="pb-3 border-b border-border/30">
+            <p className="text-[10px] text-muted-foreground/60 uppercase tracking-widest mb-2.5 font-semibold">Score</p>
+            <SpecScoreBar score={score} delay={delay + 0.15} />
+          </div>
+        )}
+
+        {tags && tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 pb-3 border-b border-border/30">
+            {tags.map(tag => <SpecTag key={tag} label={tag} />)}
+          </div>
+        )}
+
+        <div className="divide-y divide-border/30">
+          {rows.map(row => (
+            <div key={row.label} className="flex justify-between items-start py-3 gap-6">
+              <span className="text-xs text-muted-foreground shrink-0 pt-0.5">{row.label}</span>
+              <span className="text-sm text-end font-medium leading-snug">{row.value}</span>
+            </div>
+          ))}
+        </div>
+
+        {summary && (
+          <p className="text-[11px] text-muted-foreground/80 leading-relaxed border-s-2 border-primary/30 ps-3 pt-1 italic">
+            {summary}
+          </p>
+        )}
       </div>
     </motion.div>
   );
@@ -295,39 +457,68 @@ export default function PhoneDetail() {
               <p className="text-muted-foreground text-sm mt-2 max-w-2xl">{phone.name} is a premium choice for users who want strong specs, modern design, and a clear upgrade path. Use the sections below to compare its display, camera, battery, and performance against the competition.</p>
             </motion.div>
 
-            <SpecSection title={t.display} delay={0.1} rows={[
-              { label: t.screenSize,    value: phone.display.size },
-              { label: t.resolution,    value: phone.display.resolution },
-              { label: t.panelType,     value: phone.display.type },
-              { label: t.refreshRate,   value: phone.display.refreshRate },
-              { label: t.displayScore,  value: `${phone.displayScore}/100` },
-            ]} />
+            <RichSpecSection
+              title={t.display} delay={0.1}
+              icon={<Monitor className="w-4 h-4" />}
+              score={phone.displayScore}
+              tags={getDisplayTags(phone)}
+              summary={displaySummary(phone)}
+              rows={[
+                { label: t.screenSize,  value: phone.display.size },
+                { label: t.resolution,  value: phone.display.resolution },
+                { label: t.panelType,   value: phone.display.type },
+                { label: t.refreshRate, value: phone.display.refreshRate },
+              ]}
+            />
 
-            <SpecSection title={t.performance} delay={0.18} rows={[
-              { label: t.chipset,          value: phone.performance.chipset },
-              { label: t.ram,              value: phone.performance.ram },
-              { label: t.storage,          value: phone.storage.join(", ") },
-              { label: t.performanceScore, value: `${phone.performance.score}/100` },
-            ]} />
+            <RichSpecSection
+              title={t.performance} delay={0.18}
+              icon={<Cpu className="w-4 h-4" />}
+              score={phone.performance.score}
+              tags={getPerfTags(phone)}
+              summary={perfSummary(phone)}
+              rows={[
+                { label: t.chipset, value: phone.performance.chipset },
+                { label: t.ram,     value: phone.performance.ram },
+                { label: t.storage, value: phone.storage.join(", ") },
+              ]}
+            />
 
-            <SpecSection title={t.camera} delay={0.26} rows={[
-              { label: t.mainCamera,   value: phone.camera.main },
-              { label: t.ultrawide,    value: phone.camera.ultrawide },
-              { label: t.telephoto,    value: phone.camera.telephoto },
-              { label: t.video,        value: phone.camera.video },
-              { label: t.cameraScore,  value: `${phone.camera.score}/100` },
-            ]} />
+            <RichSpecSection
+              title={t.camera} delay={0.26}
+              icon={<Camera className="w-4 h-4" />}
+              score={phone.camera.score}
+              tags={getCameraTags(phone)}
+              summary={cameraSummary(phone)}
+              rows={[
+                { label: t.mainCamera,  value: phone.camera.main },
+                { label: t.ultrawide,   value: phone.camera.ultrawide },
+                { label: t.telephoto,   value: phone.camera.telephoto },
+                { label: t.video,       value: phone.camera.video },
+              ]}
+            />
 
-            <SpecSection title={t.battery} delay={0.34} rows={[
-              { label: t.capacity,      value: phone.battery.capacity },
-              { label: t.charging,      value: phone.battery.charging },
-              { label: t.batteryScore,  value: `${phone.battery.score}/100` },
-            ]} />
+            <RichSpecSection
+              title={t.battery} delay={0.34}
+              icon={<BatteryCharging className="w-4 h-4" />}
+              score={phone.battery.score}
+              tags={getBatteryTags(phone)}
+              summary={batterySummary(phone)}
+              rows={[
+                { label: t.capacity, value: phone.battery.capacity },
+                { label: t.charging, value: phone.battery.charging },
+              ]}
+            />
 
-            <SpecSection title={t.connectivityOther} delay={0.42} rows={[
-              { label: t.colorsAvailable, value: phone.colors.map(c => c.name).join(", ") },
-              { label: t.releaseYear,     value: String(phone.year) },
-            ]} />
+            <RichSpecSection
+              title={t.connectivityOther} delay={0.42}
+              icon={<Layers className="w-4 h-4" />}
+              rows={[
+                { label: t.colorsAvailable, value: phone.colors.map(c => c.name).join(", ") },
+                { label: t.releaseYear,     value: String(phone.year) },
+                { label: "Storage Options", value: phone.storage.join(" / ") },
+              ]}
+            />
           </div>
         </div>
 

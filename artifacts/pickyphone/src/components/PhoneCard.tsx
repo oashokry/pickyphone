@@ -6,6 +6,62 @@ import { WatchReviewButton } from "./ReviewButtons";
 import WallpaperButton from "./WallpaperButton";
 import { useLanguage } from "@/context/LanguageContext";
 
+function CompactTag({ label }: { label: string }) {
+  return (
+    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold border border-primary/20 bg-primary/8 text-primary/80 leading-none">
+      {label}
+    </span>
+  );
+}
+
+function getDisplayTags(phone: Phone): string[] {
+  const tags: string[] = [];
+  const type = phone.display.type.toLowerCase();
+  const rate = phone.display.refreshRate;
+  if (type.includes("oled") || type.includes("amoled")) tags.push("OLED");
+  if (type.includes("ltpo")) tags.push("LTPO");
+  if (rate.includes("120") || rate.includes("144") || rate.includes("165")) tags.push(`${rate}`);
+  return tags.slice(0, 3);
+}
+
+function getCameraTags(phone: Phone): string[] {
+  const tags: string[] = [];
+  const video = phone.camera.video.toLowerCase();
+  const tele = phone.camera.telephoto.toLowerCase();
+  const mpMatch = phone.camera.main.match(/(\d+)MP/i);
+  if (mpMatch) tags.push(`${mpMatch[1]}MP`);
+  if (video.includes("4k@120") || video.includes("4k 120")) tags.push("4K@120fps");
+  else if (video.includes("4k")) tags.push("4K Video");
+  if (video.includes("prores") || video.includes("log")) tags.push("ProRes");
+  if (tele.includes("5×") || tele.includes("5x")) tags.push("5× Zoom");
+  else if (tele.includes("10×") || tele.includes("10x")) tags.push("10× Zoom");
+  else if (tele.includes("3×") || tele.includes("3x")) tags.push("3× Zoom");
+  return tags.slice(0, 3);
+}
+
+function getPerfTags(phone: Phone): string[] {
+  const tags: string[] = [];
+  const chip = phone.performance.chipset.toLowerCase();
+  const ram = parseInt(phone.performance.ram);
+  if (chip.includes("a18 pro") || chip.includes("snapdragon 8 elite") || chip.includes("dimensity 9400")) tags.push("Flagship");
+  if (!isNaN(ram)) tags.push(`${ram}GB RAM`);
+  if (phone.performance.score >= 95) tags.push("Elite Speed");
+  return tags.slice(0, 3);
+}
+
+function getBatteryTags(phone: Phone): string[] {
+  const tags: string[] = [];
+  const charging = phone.battery.charging.toLowerCase();
+  const mah = parseInt(phone.battery.capacity.replace(/[^0-9]/g, ""));
+  if (mah >= 5000) tags.push("5000+ mAh");
+  else if (mah >= 4500) tags.push("4500+ mAh");
+  else if (mah >= 4000) tags.push("4000+ mAh");
+  if (charging.includes("magsafe") || charging.includes("wireless") || charging.includes("qi")) tags.push("Wireless");
+  const wMatch = charging.match(/(\d+)w/i);
+  if (wMatch && parseInt(wMatch[1]) >= 45) tags.push(`${wMatch[1]}W Fast`);
+  return tags.slice(0, 3);
+}
+
 interface Props {
   phone: Phone;
   winners: {
@@ -129,11 +185,24 @@ export default function PhoneCard({ phone, winners, matchPct, animationDelay = 0
 
         {SECTION_GROUPS.map((section, si) => {
           const rows = section.rows(phone, winners);
+          const tags =
+            section.title === t.display     ? getDisplayTags(phone) :
+            section.title === t.camera      ? getCameraTags(phone) :
+            section.title === t.performance ? getPerfTags(phone) :
+            section.title === t.battery     ? getBatteryTags(phone) :
+            [];
           return (
             <div key={section.title}>
-              <h4 className="text-xs font-serif font-bold text-primary mb-2 pb-2 border-b border-primary/15 uppercase tracking-widest">
-                {section.title}
-              </h4>
+              <div className="mb-2 pb-2 border-b border-primary/15">
+                <h4 className="text-xs font-serif font-bold text-primary uppercase tracking-widest mb-1.5">
+                  {section.title}
+                </h4>
+                {tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {tags.map(tag => <CompactTag key={tag} label={tag} />)}
+                  </div>
+                )}
+              </div>
               {rows.map((row, ri) => (
                 <SpecRow
                   key={row.label}
