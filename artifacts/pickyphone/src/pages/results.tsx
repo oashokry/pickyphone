@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, Link } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Share2, Check, Languages, X, Loader2 } from "lucide-react";
+import { ArrowLeft, Share2, Check, Languages, X, Loader2, RotateCcw } from "lucide-react";
 import { useComparisonResults } from "@/hooks/useComparisonResults";
 import PhoneCard from "@/components/PhoneCard";
 import RecommendationBanner from "@/components/RecommendationBanner";
@@ -12,12 +12,19 @@ import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useLanguage, LanguageToggle } from "@/context/LanguageContext";
+import { useComparison } from "@/context/ComparisonContext";
 
 export default function Results() {
   const [, setLocation] = useLocation();
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const { t } = useLanguage();
+  const { resetComparison } = useComparison();
+
+  const handleNewComparison = () => {
+    resetComparison();
+    setLocation("/compare");
+  };
 
   const {
     selectedPhones,
@@ -134,6 +141,16 @@ export default function Results() {
                   animationDelay={i * 0.1}
                 />
               ))}
+            </div>
+
+            <div className="mt-14 flex justify-center">
+              <button
+                onClick={handleNewComparison}
+                className="group flex items-center gap-2 px-8 py-3.5 rounded-full border border-border/60 bg-card/50 text-muted-foreground font-semibold text-sm hover:border-primary/50 hover:text-primary hover:bg-primary/5 transition-all duration-300"
+              >
+                <RotateCcw className="w-4 h-4 group-hover:rotate-[-45deg] transition-transform duration-300" />
+                New Comparison
+              </button>
             </div>
           </motion.div>
         )}
