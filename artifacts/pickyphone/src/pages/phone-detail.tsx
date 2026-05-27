@@ -6,6 +6,7 @@ import { phones, type Phone } from "@/data/phones";
 import { useComparison } from "@/context/ComparisonContext";
 import PhoneIllustration from "@/components/PhoneIllustration";
 import { WatchReviewButton } from "@/components/ReviewButtons";
+import WallpaperButton from "@/components/WallpaperButton";
 import Footer from "@/components/Footer";
 import Seo from "@/components/Seo";
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -273,6 +274,7 @@ export default function PhoneDetail() {
 
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }} className="space-y-3">
               <HumanTranslation phone={phone} />
+              <WallpaperButton brand={phone.brand} name={phone.name} />
               <button
                 onClick={handleCompare}
                 className="group w-full flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-full border border-border bg-card text-muted-foreground font-semibold text-sm hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-all duration-300"

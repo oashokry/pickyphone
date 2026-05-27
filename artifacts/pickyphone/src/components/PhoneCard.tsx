@@ -3,6 +3,7 @@ import { Phone } from "@/data/phones";
 import SpecRow from "./SpecRow";
 import PhoneIllustration from "./PhoneIllustration";
 import { WatchReviewButton } from "./ReviewButtons";
+import WallpaperButton from "./WallpaperButton";
 import { useLanguage } from "@/context/LanguageContext";
 
 interface Props {
@@ -120,8 +121,9 @@ export default function PhoneCard({ phone, winners, matchPct, animationDelay = 0
       </div>
 
       <div className="p-5 bg-background/40 flex-1 flex flex-col gap-6 text-start border-t border-border/40">
-        <div className="flex justify-center">
+        <div className="flex flex-col gap-2">
           <WatchReviewButton phone={phone} />
+          <WallpaperButton brand={phone.brand} name={phone.name} variant="compact" />
         </div>
 
         {SECTION_GROUPS.map((section, si) => {
