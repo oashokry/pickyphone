@@ -26,7 +26,7 @@ Write 4–6 short paragraphs. Each paragraph should cover one aspect (display, c
 
   try {
     const completion = await openai.chat.completions.create({
-      model: "gpt-5",
+      model: "gpt-4o",
       max_completion_tokens: 8192,
       messages: [{ role: "user", content: prompt }],
     });
