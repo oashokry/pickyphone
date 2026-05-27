@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { CheckCircle2, XCircle, AlertCircle, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { CheckCircle2, XCircle, AlertCircle, TrendingUp, TrendingDown, Minus, Info } from "lucide-react";
 import { Phone } from "@/data/phones";
 import { analyzeUpgrade, UpgradeVerdict } from "@/lib/scoring";
 import PhoneIllustration from "./PhoneIllustration";
@@ -96,9 +96,20 @@ function UpgradeCard({ currentPhone, candidate, index }: { currentPhone: Phone; 
       </div>
 
       <div className="flex items-center justify-between pt-3 border-t border-border/50">
-        <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">
-          {t.overall}
-        </span>
+        <div className="flex items-center gap-1.5 group/tip relative">
+          <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">
+            {t.overall}
+          </span>
+          <Info className="w-3 h-3 text-muted-foreground/40 group-hover/tip:text-muted-foreground/70 transition-colors cursor-default" />
+          <div className="pointer-events-none absolute bottom-full left-0 mb-2 w-52 z-10
+            opacity-0 group-hover/tip:opacity-100 transition-opacity duration-200">
+            <div className="bg-popover border border-border rounded-lg px-3 py-2.5 shadow-xl">
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                Average of all four categories — Performance, Camera, Battery, and Display — weighted equally.
+              </p>
+            </div>
+          </div>
+        </div>
         <span className={`text-xl font-bold font-serif ${overallColor}`}>
           {a.overallDelta > 0 ? "+" : ""}{a.overallDelta}%
         </span>
