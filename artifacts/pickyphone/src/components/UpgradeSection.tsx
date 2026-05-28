@@ -89,10 +89,10 @@ function UpgradeCard({ currentPhone, candidate, index }: { currentPhone: Phone; 
       </div>
 
       <div className="space-y-2.5">
-        <DeltaBar label={t.performance} description="Speed, gaming & multitasking"  delta={a.performanceDelta} delay={index * 0.1 + 0.3} />
-        <DeltaBar label={t.camera}      description="Photo & video quality"          delta={a.cameraDelta}      delay={index * 0.1 + 0.38} />
-        <DeltaBar label={t.battery}     description="How long it lasts per charge"   delta={a.batteryDelta}     delay={index * 0.1 + 0.46} />
-        <DeltaBar label={t.display}     description="Screen sharpness & smoothness"  delta={a.displayDelta}     delay={index * 0.1 + 0.54} />
+        <DeltaBar label={t.performance} description={t.upgradeSpeedDesc}   delta={a.performanceDelta} delay={index * 0.1 + 0.3} />
+        <DeltaBar label={t.camera}      description={t.upgradeCamDesc}    delta={a.cameraDelta}      delay={index * 0.1 + 0.38} />
+        <DeltaBar label={t.battery}     description={t.upgradeBattDesc}   delta={a.batteryDelta}     delay={index * 0.1 + 0.46} />
+        <DeltaBar label={t.display}     description={t.upgradeDisplayDesc} delta={a.displayDelta}    delay={index * 0.1 + 0.54} />
       </div>
 
       <div className="flex items-center justify-between pt-3 border-t border-border/50">
@@ -105,7 +105,7 @@ function UpgradeCard({ currentPhone, candidate, index }: { currentPhone: Phone; 
             opacity-0 group-hover/tip:opacity-100 transition-opacity duration-200">
             <div className="bg-popover border border-border rounded-lg px-3 py-2.5 shadow-xl">
               <p className="text-[11px] text-muted-foreground leading-relaxed">
-                Average of all four categories — Performance, Camera, Battery, and Display — weighted equally.
+                {t.upgradeOverallTip}
               </p>
             </div>
           </div>

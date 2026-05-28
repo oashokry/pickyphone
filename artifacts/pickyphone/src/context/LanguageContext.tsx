@@ -162,6 +162,44 @@ export interface Translations {
   selectPhone: string;
   searchBrandModelPlaceholder: string;
   noPhoneFound: string;
+  getWallpapers: string;
+  getOfficialWallpapers: string;
+  upgradeSpeedDesc: string;
+  upgradeCamDesc: string;
+  upgradeBattDesc: string;
+  upgradeDisplayDesc: string;
+  upgradeOverallTip: string;
+  isItWorthItBtn: string;
+  questionOf: (n: number, total: number) => string;
+  overallMatch: string;
+  retakeQuiz: string;
+  worthItSummary: string;
+  dependsSummary: string;
+  notWorthItSummary: string;
+  q1: string; q1Sub: string; q1a: string; q1b: string; q1c: string; q1d: string;
+  q2: string; q2Sub: string; q2a: string; q2b: string; q2c: string; q2d: string; q2e: string;
+  q3: string; q3Sub: string; q3a: string; q3b: string; q3c: string;
+  q4: string; q4Sub: string; q4a: string; q4b: string; q4c: string;
+  q5: string; q5Sub: string; q5a: string; q5b: string; q5c: string;
+  breakdownBudget: string;
+  breakdownUse: string;
+  breakdownCamera: string;
+  breakdownBattery: string;
+  breakdownPerf: string;
+  budgetNoteGood: (price: string) => string;
+  budgetNoteStretch: (price: string) => string;
+  budgetNoteOver: (price: string) => string;
+  useGaming2: string; useGaming1: string; useGaming0: string;
+  usePhoto2: string; usePhoto1: string; usePhoto0: string;
+  useWork2: string; useWork1: string; useWork0: string;
+  useCasual2: string; useCasual1: string;
+  useMedia2: string; useMedia1: string; useMedia0: string;
+  cam2High: (score: number) => string; cam1High: (score: number) => string; cam0High: (score: number) => string;
+  cam2Mid: string; cam1Mid: string; cam2Low: string;
+  batt2High: (score: number) => string; batt1High: (score: number) => string; batt0High: (score: number) => string;
+  batt2Mid: string; batt1Mid: string; batt2Low: string;
+  perf2High: (score: number) => string; perf1High: (score: number) => string; perf0High: (score: number) => string;
+  perf2Mid: string; perf1Mid: string; perf2Low: string;
 }
 
 const en: Translations = {
@@ -324,6 +362,70 @@ const en: Translations = {
   selectPhone: "Select phone...",
   searchBrandModelPlaceholder: "Search brand or model...",
   noPhoneFound: "No phone found.",
+  getWallpapers: "Get Wallpapers",
+  getOfficialWallpapers: "Get Official Wallpapers",
+  upgradeSpeedDesc: "Speed, gaming & multitasking",
+  upgradeCamDesc: "Photo & video quality",
+  upgradeBattDesc: "How long it lasts per charge",
+  upgradeDisplayDesc: "Screen sharpness & smoothness",
+  upgradeOverallTip: "Average of all four categories — Performance, Camera, Battery, and Display — weighted equally.",
+  isItWorthItBtn: "Is it worth it?",
+  questionOf: (n, total) => `Question ${n} of ${total}`,
+  overallMatch: "Overall match",
+  retakeQuiz: "Retake the quiz",
+  worthItSummary: "Based on your needs, this phone is a strong match. You'll likely feel the value in daily use.",
+  dependsSummary: "There are some clear pros for your use case, but also real trade-offs. Read the breakdown before committing.",
+  notWorthItSummary: "Based on your priorities, this phone has too many gaps to justify the price. There are better fits out there.",
+  q1: "What's your budget for a new phone?", q1Sub: "We'll check if this phone fits your spending range.",
+  q1a: "Under $500", q1b: "$500 – $800", q1c: "$800 – $1,200", q1d: "Over $1,200",
+  q2: "How will you mainly use this phone?", q2Sub: "This shapes which specs matter most for you.",
+  q2a: "Gaming", q2b: "Photography & Video", q2c: "Work & Productivity", q2d: "Casual everyday use", q2e: "Video streaming & media",
+  q3: "How important is camera quality?", q3Sub: "Be honest — do you actually shoot a lot?",
+  q3a: "Essential — I shoot photos and videos constantly", q3b: "Nice to have — I use it occasionally", q3c: "Not important — I barely use the camera",
+  q4: "How much do you care about battery life?", q4Sub: "Think about your longest days away from a charger.",
+  q4a: "Critical — I need it to last all day and more", q4b: "Important — I'd rather not think about it", q4c: "Not a priority — I charge often anyway",
+  q5: "What tasks do you run on your phone?", q5Sub: "This tells us how much raw power you actually need.",
+  q5a: "Heavy — gaming, video editing, multitasking", q5b: "Everyday — apps, social media, browsing", q5c: "Light — calls, messages, simple apps",
+  breakdownBudget: "Budget fit",
+  breakdownUse: "Use case match",
+  breakdownCamera: "Camera fit",
+  breakdownBattery: "Battery fit",
+  breakdownPerf: "Performance fit",
+  budgetNoteGood: (price) => `${price} fits comfortably within your budget.`,
+  budgetNoteStretch: (price) => `${price} is slightly above your budget — a stretch, but close.`,
+  budgetNoteOver: (price) => `At ${price}, this is significantly over your budget.`,
+  useGaming2: "High performance and display scores — great for gaming.",
+  useGaming1: "Decent performance for gaming, but not the fastest option.",
+  useGaming0: "Performance and display scores fall short of a gaming-focused pick.",
+  usePhoto2: "Elite camera system — ideal for photography and video.",
+  usePhoto1: "Solid camera for photography, though pros may want more.",
+  usePhoto0: "Camera score is below what dedicated photo users need.",
+  useWork2: "Strong performance and battery make it a capable work device.",
+  useWork1: "Handles work tasks well, though endurance could be stronger.",
+  useWork0: "Not the best match for heavy work and productivity use.",
+  useCasual2: "Good value and battery make it a solid casual phone.",
+  useCasual1: "Works fine for casual use — possibly more phone than you need.",
+  useMedia2: "Excellent screen and battery — perfect for streaming.",
+  useMedia1: "Good display for media, battery life could be better.",
+  useMedia0: "Display or battery score doesn't suit a media-first lifestyle.",
+  cam2High: (score) => `Camera score of ${score}/100 — genuinely excellent for demanding shooters.`,
+  cam1High: (score) => `Camera score of ${score}/100 — capable, but not top-tier for heavy photographers.`,
+  cam0High: (score) => `Camera score of ${score}/100 — not strong enough if you shoot a lot.`,
+  cam2Mid: "Camera is more than good enough for occasional shooting.",
+  cam1Mid: "Camera is adequate for casual use.",
+  cam2Low: "Camera quality doesn't matter to you, so it won't count against this phone.",
+  batt2High: (score) => `Battery score of ${score}/100 — excellent all-day endurance.`,
+  batt1High: (score) => `Battery score of ${score}/100 — decent, but power users may want more.`,
+  batt0High: (score) => `Battery score of ${score}/100 — not ideal if endurance is critical for you.`,
+  batt2Mid: "Battery is solid enough that you won't have to think about it.",
+  batt1Mid: "Battery is passable — you may need to top up on long days.",
+  batt2Low: "Since battery life isn't a priority, this won't affect your verdict.",
+  perf2High: (score) => `Performance score of ${score}/100 — built for demanding tasks.`,
+  perf1High: (score) => `Performance score of ${score}/100 — capable, but heavy users may notice limits.`,
+  perf0High: (score) => `Performance score of ${score}/100 — not suited for heavy use.`,
+  perf2Mid: "More than powerful enough for everyday apps and browsing.",
+  perf1Mid: "Handles everyday tasks, though it's not the snappiest.",
+  perf2Low: "Any modern smartphone handles light tasks — this one is no exception.",
 };
 
 const ar: Translations = {
@@ -486,6 +588,70 @@ const ar: Translations = {
   selectPhone: "اختر هاتفًا...",
   searchBrandModelPlaceholder: "ابحث عن الماركة أو الطراز...",
   noPhoneFound: "لا يوجد هاتف.",
+  getWallpapers: "احصل على خلفيات",
+  getOfficialWallpapers: "احصل على الخلفيات الرسمية",
+  upgradeSpeedDesc: "السرعة والألعاب وتعدد المهام",
+  upgradeCamDesc: "جودة الصور والفيديو",
+  upgradeBattDesc: "مدة الشحنة الواحدة",
+  upgradeDisplayDesc: "حدة الشاشة وسلاسة الحركة",
+  upgradeOverallTip: "متوسط الأربع فئات — الأداء والكاميرا والبطارية والشاشة — بأوزان متساوية.",
+  isItWorthItBtn: "هل يستحق؟",
+  questionOf: (n, total) => `السؤال ${n} من ${total}`,
+  overallMatch: "التطابق الإجمالي",
+  retakeQuiz: "إعادة الاختبار",
+  worthItSummary: "بناءً على احتياجاتك، هذا الهاتف خيار قوي. ستشعر بقيمته في الاستخدام اليومي.",
+  dependsSummary: "هناك مزايا واضحة لحالة استخدامك، لكن هناك أيضاً تنازلات حقيقية. اقرأ التفاصيل قبل اتخاذ قرارك.",
+  notWorthItSummary: "بناءً على أولوياتك، هذا الهاتف لا يبرر سعره. هناك خيارات أفضل لك.",
+  q1: "ما ميزانيتك لشراء هاتف جديد؟", q1Sub: "سنتحقق ما إذا كان هذا الهاتف يناسب ميزانيتك.",
+  q1a: "أقل من 500$", q1b: "500$ – 800$", q1c: "800$ – 1,200$", q1d: "أكثر من 1,200$",
+  q2: "كيف ستستخدم هذا الهاتف بشكل رئيسي؟", q2Sub: "هذا يحدد أي المواصفات تهمك أكثر.",
+  q2a: "الألعاب", q2b: "التصوير الفوتوغرافي والفيديو", q2c: "العمل والإنتاجية", q2d: "الاستخدام اليومي العادي", q2e: "بث الفيديو والوسائط",
+  q3: "ما مدى أهمية جودة الكاميرا بالنسبة لك؟", q3Sub: "كن صادقاً — هل تلتقط الصور كثيراً؟",
+  q3a: "ضرورية — أصوّر باستمرار", q3b: "جيدة أن تكون — أستخدمها أحياناً", q3c: "غير مهمة — بالكاد أستخدم الكاميرا",
+  q4: "ما مدى اهتمامك بعمر البطارية؟", q4Sub: "فكّر في أطول أيامك بعيداً عن الشاحن.",
+  q4a: "أساسي — أحتاجها طوال اليوم وأكثر", q4b: "مهم — أفضل ألا أفكر فيها", q4c: "ليست أولوية — أشحن بانتظام",
+  q5: "ما نوع المهام التي تشغّلها على هاتفك؟", q5Sub: "هذا يخبرنا بمقدار القوة الفعلية التي تحتاجها.",
+  q5a: "ثقيلة — ألعاب وتحرير فيديو وتعدد مهام", q5b: "يومية — تطبيقات وتواصل اجتماعي وتصفح", q5c: "خفيفة — مكالمات ورسائل وتطبيقات بسيطة",
+  breakdownBudget: "ملاءمة الميزانية",
+  breakdownUse: "تطابق حالة الاستخدام",
+  breakdownCamera: "ملاءمة الكاميرا",
+  breakdownBattery: "ملاءمة البطارية",
+  breakdownPerf: "ملاءمة الأداء",
+  budgetNoteGood: (price) => `${price} يناسب ميزانيتك بشكل مريح.`,
+  budgetNoteStretch: (price) => `${price} أعلى قليلاً من ميزانيتك — يمكن الوصول إليه لكنه مجهد.`,
+  budgetNoteOver: (price) => `بسعر ${price}، هذا الهاتف يتجاوز ميزانيتك بشكل ملحوظ.`,
+  useGaming2: "درجات أداء وشاشة عالية — رائع للألعاب.",
+  useGaming1: "أداء مقبول للألعاب، لكنه ليس الأسرع.",
+  useGaming0: "درجات الأداء والشاشة لا تصل لمستوى هواتف الألعاب.",
+  usePhoto2: "نظام كاميرا متميز — مثالي للتصوير والفيديو.",
+  usePhoto1: "كاميرا جيدة للتصوير، رغم أن المحترفين قد يريدون المزيد.",
+  usePhoto0: "تقييم الكاميرا أقل مما يحتاجه المصورون المتخصصون.",
+  useWork2: "أداء وبطارية قويان يجعلانه جهاز عمل ممتاز.",
+  useWork1: "يتعامل مع مهام العمل جيداً، رغم أن الاستمرارية قد تكون أفضل.",
+  useWork0: "ليس الخيار الأمثل للعمل المكثف والإنتاجية.",
+  useCasual2: "قيمة جيدة وبطارية تجعله هاتفاً يومياً ممتازاً.",
+  useCasual1: "يعمل بشكل جيد للاستخدام اليومي — ربما أكثر مما تحتاج.",
+  useMedia2: "شاشة وبطارية ممتازتان — مثالي للبث.",
+  useMedia1: "شاشة جيدة للوسائط، عمر البطارية يمكن أن يكون أفضل.",
+  useMedia0: "تقييم الشاشة أو البطارية لا يناسب أسلوب الحياة الإعلامي.",
+  cam2High: (score) => `تقييم الكاميرا ${score}/100 — ممتاز حقاً للمصورين المتطلبين.`,
+  cam1High: (score) => `تقييم الكاميرا ${score}/100 — جيد، لكن ليس الأفضل للمصورين المحترفين.`,
+  cam0High: (score) => `تقييم الكاميرا ${score}/100 — ليس قوياً بما يكفي إذا كنت تصوّر كثيراً.`,
+  cam2Mid: "الكاميرا أكثر من كافية للتصوير العرضي.",
+  cam1Mid: "الكاميرا مناسبة للاستخدام اليومي.",
+  cam2Low: "جودة الكاميرا لا تهمك، لذا لن تؤثر على الحكم.",
+  batt2High: (score) => `تقييم البطارية ${score}/100 — استمرارية رائعة طوال اليوم.`,
+  batt1High: (score) => `تقييم البطارية ${score}/100 — مقبول، لكن مستخدمو الطاقة قد يريدون المزيد.`,
+  batt0High: (score) => `تقييم البطارية ${score}/100 — غير مثالي إذا كانت الاستمرارية أساسية لك.`,
+  batt2Mid: "البطارية قوية بما يكفي حتى لا تضطر للتفكير فيها.",
+  batt1Mid: "البطارية مقبولة — قد تحتاج للشحن في الأيام الطويلة.",
+  batt2Low: "بما أن عمر البطارية ليس أولوية، لن يؤثر هذا على الحكم.",
+  perf2High: (score) => `تقييم الأداء ${score}/100 — مصمم للمهام الصعبة.`,
+  perf1High: (score) => `تقييم الأداء ${score}/100 — قادر، لكن المستخدمون المكثفون قد يلاحظون القيود.`,
+  perf0High: (score) => `تقييم الأداء ${score}/100 — غير مناسب للاستخدام المكثف.`,
+  perf2Mid: "أقوى من اللازم لتطبيقات التصفح اليومية.",
+  perf1Mid: "يتعامل مع المهام اليومية، رغم أنه ليس الأسرع.",
+  perf2Low: "أي هاتف ذكي حديث يتعامل مع المهام الخفيفة — وهذا ليس استثناءً.",
 };
 
 const DICT: Record<Lang, Translations> = { en, ar };
