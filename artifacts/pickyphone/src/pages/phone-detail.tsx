@@ -8,6 +8,7 @@ import { useComparison } from "@/context/ComparisonContext";
 import PhoneIllustration from "@/components/PhoneIllustration";
 import { WatchReviewButton } from "@/components/ReviewButtons";
 import WallpaperButton from "@/components/WallpaperButton";
+import IsItWorthIt from "@/components/IsItWorthIt";
 import Footer from "@/components/Footer";
 import Seo from "@/components/Seo";
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -437,6 +438,7 @@ export default function PhoneDetail() {
 
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }} className="space-y-3">
               <HumanTranslation phone={phone} />
+              <IsItWorthIt phone={phone} />
               <WallpaperButton brand={phone.brand} name={phone.name} />
               <button
                 onClick={handleCompare}
