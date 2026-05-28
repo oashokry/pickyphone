@@ -14,6 +14,7 @@ import Seo from "@/components/Seo";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { buildBreadcrumbSchema, buildPhoneSchema, getCanonicalUrl, phoneDescription, phoneKeywords, phonePath, phoneTitle } from "@/lib/seo";
 import { useLanguage, LanguageToggle } from "@/context/LanguageContext";
+import type { Translations } from "@/context/LanguageContext";
 
 const fadeUp = { hidden: { opacity: 0, y: 16 }, show: (d: number) => ({ opacity: 1, y: 0, transition: { duration: 0.5, delay: d, ease: [0.22, 1, 0.36, 1] } }) };
 
@@ -104,33 +105,33 @@ function getBatteryTags(phone: Phone): string[] {
   return tags;
 }
 
-function displaySummary(phone: Phone): string {
+function displaySummary(phone: Phone, t: Translations): string {
   const { size, type, refreshRate } = phone.display;
   const s = phone.displayScore;
-  if (s >= 95) return `The ${size} ${type} panel with ${refreshRate} refresh is among the sharpest displays available — vivid colors, fluid motion, and excellent outdoor brightness.`;
-  if (s >= 85) return `A premium ${type} screen at ${size} with ${refreshRate} — expect rich colors, deep blacks, and smooth scrolling in all conditions.`;
-  return `The ${size} ${type} panel handles everyday use well with solid clarity and ${refreshRate} refresh.`;
+  if (s >= 95) return t.displaySummaryHigh(size, type, refreshRate);
+  if (s >= 85) return t.displaySummaryMid(size, type, refreshRate);
+  return t.displaySummaryLow(size, type, refreshRate);
 }
 
-function cameraSummary(phone: Phone): string {
+function cameraSummary(phone: Phone, t: Translations): string {
   const s = phone.camera.score;
-  if (s >= 95) return `Elite camera system — the ${phone.camera.main} main sensor, ${phone.camera.telephoto} telephoto, and ${phone.camera.video} video put this among the best. Every focal length delivers.`;
-  if (s >= 85) return `A versatile camera trio with ${phone.camera.main} main and ${phone.camera.video} video — ideal for photographers and content creators alike.`;
-  return `Solid imaging with ${phone.camera.main} and ${phone.camera.video} support for everyday photography and video.`;
+  if (s >= 95) return t.cameraSummaryHigh(phone.camera.main, phone.camera.telephoto ?? "", phone.camera.video);
+  if (s >= 85) return t.cameraSummaryMid(phone.camera.main, phone.camera.video);
+  return t.cameraSummaryLow(phone.camera.main, phone.camera.video);
 }
 
-function perfSummary(phone: Phone): string {
+function perfSummary(phone: Phone, t: Translations): string {
   const s = phone.performance.score;
-  if (s >= 95) return `The ${phone.performance.chipset} with ${phone.performance.ram} is a powerhouse — no game, app, or multitasking scenario will slow it down. Future-proof for years.`;
-  if (s >= 85) return `The ${phone.performance.chipset} and ${phone.performance.ram} handle heavy workloads, gaming, and multitasking without hesitation.`;
-  return `The ${phone.performance.chipset} and ${phone.performance.ram} deliver smooth everyday performance for most tasks.`;
+  if (s >= 95) return t.perfSummaryHigh(phone.performance.chipset, phone.performance.ram);
+  if (s >= 85) return t.perfSummaryMid(phone.performance.chipset, phone.performance.ram);
+  return t.perfSummaryLow(phone.performance.chipset, phone.performance.ram);
 }
 
-function batterySummary(phone: Phone): string {
+function batterySummary(phone: Phone, t: Translations): string {
   const s = phone.battery.score;
-  if (s >= 90) return `The ${phone.battery.capacity} cell is built for marathon days. Combined with ${phone.battery.charging}, top-ups are quick and you rarely hit empty.`;
-  if (s >= 80) return `Reliable all-day endurance with a ${phone.battery.capacity} cell and ${phone.battery.charging} — a safe pick for heavy users.`;
-  return `The ${phone.battery.capacity} battery covers a typical day with ${phone.battery.charging} available when you need a boost.`;
+  if (s >= 90) return t.batterySummaryHigh(phone.battery.capacity, phone.battery.charging);
+  if (s >= 80) return t.batterySummaryMid(phone.battery.capacity, phone.battery.charging);
+  return t.batterySummaryLow(phone.battery.capacity, phone.battery.charging);
 }
 
 // ── Rich spec section ──────────────────────────────────────────────────────────
@@ -146,6 +147,7 @@ interface RichSpecProps {
 }
 
 function RichSpecSection({ title, icon, score, tags, rows, summary, delay }: RichSpecProps) {
+  const { t } = useLanguage();
   return (
     <motion.div variants={fadeUp} initial="hidden" animate="show" custom={delay}
       className="rounded-2xl border border-border bg-card overflow-hidden">
@@ -166,7 +168,7 @@ function RichSpecSection({ title, icon, score, tags, rows, summary, delay }: Ric
       <div className="p-5 space-y-4">
         {score !== undefined && (
           <div className="pb-3 border-b border-border/30">
-            <p className="text-[10px] text-muted-foreground/60 uppercase tracking-widest mb-2.5 font-semibold">Score</p>
+            <p className="text-[10px] text-muted-foreground/60 uppercase tracking-widest mb-2.5 font-semibold">{t.specScore}</p>
             <SpecScoreBar score={score} delay={delay + 0.15} />
           </div>
         )}
@@ -404,7 +406,7 @@ export default function PhoneDetail() {
               <h1 className="text-2xl sm:text-3xl font-serif font-bold text-center mb-1">{phone.name}</h1>
               <p className="text-3xl font-bold text-primary mb-1">${phone.price.toLocaleString()}</p>
               <p className="text-sm text-muted-foreground mb-4">{phone.year}</p>
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50 mb-2">Available Colors</p>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50 mb-2">{t.colorsAvailable}</p>
               <div className="flex gap-2.5 flex-wrap justify-center mb-5">
                 {phone.colors.map(c => (
                   <div key={c.hex} title={c.name} className="group relative">
@@ -420,7 +422,7 @@ export default function PhoneDetail() {
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }} className="rounded-2xl border border-border bg-card p-5 space-y-3">
-              <h3 className="text-xs font-serif font-bold text-primary uppercase tracking-widest mb-4">Scores</h3>
+              <h3 className="text-xs font-serif font-bold text-primary uppercase tracking-widest mb-4">{t.scoresLabel}</h3>
               {[
                 { label: t.camera,      score: phone.camera.score },
                 { label: t.performance, score: phone.performance.score },
@@ -456,7 +458,7 @@ export default function PhoneDetail() {
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }} className="mb-2">
               <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">{t.fullSpecifications}</p>
               <h2 className="text-2xl font-serif font-bold">{phone.brand} {phone.name}</h2>
-              <p className="text-muted-foreground text-sm mt-2 max-w-2xl">{phone.name} is a premium choice for users who want strong specs, modern design, and a clear upgrade path. Use the sections below to compare its display, camera, battery, and performance against the competition.</p>
+              <p className="text-muted-foreground text-sm mt-2 max-w-2xl">{t.phoneDetailDesc(phone.name)}</p>
             </motion.div>
 
             <RichSpecSection
@@ -464,7 +466,7 @@ export default function PhoneDetail() {
               icon={<Monitor className="w-4 h-4" />}
               score={phone.displayScore}
               tags={getDisplayTags(phone)}
-              summary={displaySummary(phone)}
+              summary={displaySummary(phone, t)}
               rows={[
                 { label: t.screenSize,  value: phone.display.size },
                 { label: t.resolution,  value: phone.display.resolution },
@@ -478,7 +480,7 @@ export default function PhoneDetail() {
               icon={<Cpu className="w-4 h-4" />}
               score={phone.performance.score}
               tags={getPerfTags(phone)}
-              summary={perfSummary(phone)}
+              summary={perfSummary(phone, t)}
               rows={[
                 { label: t.chipset, value: phone.performance.chipset },
                 { label: t.ram,     value: phone.performance.ram },
@@ -491,7 +493,7 @@ export default function PhoneDetail() {
               icon={<Camera className="w-4 h-4" />}
               score={phone.camera.score}
               tags={getCameraTags(phone)}
-              summary={cameraSummary(phone)}
+              summary={cameraSummary(phone, t)}
               rows={[
                 { label: t.mainCamera,  value: phone.camera.main },
                 { label: t.ultrawide,   value: phone.camera.ultrawide },
@@ -505,7 +507,7 @@ export default function PhoneDetail() {
               icon={<BatteryCharging className="w-4 h-4" />}
               score={phone.battery.score}
               tags={getBatteryTags(phone)}
-              summary={batterySummary(phone)}
+              summary={batterySummary(phone, t)}
               rows={[
                 { label: t.capacity, value: phone.battery.capacity },
                 { label: t.charging, value: phone.battery.charging },

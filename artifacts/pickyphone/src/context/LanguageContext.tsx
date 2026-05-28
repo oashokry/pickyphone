@@ -200,6 +200,21 @@ export interface Translations {
   batt2Mid: string; batt1Mid: string; batt2Low: string;
   perf2High: (score: number) => string; perf1High: (score: number) => string; perf0High: (score: number) => string;
   perf2Mid: string; perf1Mid: string; perf2Low: string;
+  phoneDetailDesc: (name: string) => string;
+  specScore: string;
+  scoresLabel: string;
+  displaySummaryHigh: (size: string, type: string, refresh: string) => string;
+  displaySummaryMid: (size: string, type: string, refresh: string) => string;
+  displaySummaryLow: (size: string, type: string, refresh: string) => string;
+  cameraSummaryHigh: (main: string, tele: string, video: string) => string;
+  cameraSummaryMid: (main: string, video: string) => string;
+  cameraSummaryLow: (main: string, video: string) => string;
+  perfSummaryHigh: (chipset: string, ram: string) => string;
+  perfSummaryMid: (chipset: string, ram: string) => string;
+  perfSummaryLow: (chipset: string, ram: string) => string;
+  batterySummaryHigh: (capacity: string, charging: string) => string;
+  batterySummaryMid: (capacity: string, charging: string) => string;
+  batterySummaryLow: (capacity: string, charging: string) => string;
 }
 
 const en: Translations = {
@@ -426,6 +441,21 @@ const en: Translations = {
   perf2Mid: "More than powerful enough for everyday apps and browsing.",
   perf1Mid: "Handles everyday tasks, though it's not the snappiest.",
   perf2Low: "Any modern smartphone handles light tasks — this one is no exception.",
+  phoneDetailDesc: (name) => `${name} is a premium choice for users who want strong specs, modern design, and a clear upgrade path. Use the sections below to compare its display, camera, battery, and performance against the competition.`,
+  specScore: "Score",
+  scoresLabel: "Scores",
+  displaySummaryHigh: (size, type, refresh) => `The ${size} ${type} panel with ${refresh} refresh is among the sharpest displays available — vivid colors, fluid motion, and excellent outdoor brightness.`,
+  displaySummaryMid: (size, type, refresh) => `A premium ${type} screen at ${size} with ${refresh} — expect rich colors, deep blacks, and smooth scrolling in all conditions.`,
+  displaySummaryLow: (size, type, refresh) => `The ${size} ${type} panel handles everyday use well with solid clarity and ${refresh} refresh.`,
+  cameraSummaryHigh: (main, tele, video) => `Elite camera system — the ${main} main sensor, ${tele} telephoto, and ${video} video put this among the best. Every focal length delivers.`,
+  cameraSummaryMid: (main, video) => `A versatile camera trio with ${main} main and ${video} video — ideal for photographers and content creators alike.`,
+  cameraSummaryLow: (main, video) => `Solid imaging with ${main} and ${video} support for everyday photography and video.`,
+  perfSummaryHigh: (chipset, ram) => `The ${chipset} with ${ram} is a powerhouse — no game, app, or multitasking scenario will slow it down. Future-proof for years.`,
+  perfSummaryMid: (chipset, ram) => `The ${chipset} and ${ram} handle heavy workloads, gaming, and multitasking without hesitation.`,
+  perfSummaryLow: (chipset, ram) => `The ${chipset} and ${ram} deliver smooth everyday performance for most tasks.`,
+  batterySummaryHigh: (capacity, charging) => `The ${capacity} cell is built for marathon days. Combined with ${charging}, top-ups are quick and you rarely hit empty.`,
+  batterySummaryMid: (capacity, charging) => `Reliable all-day endurance with a ${capacity} cell and ${charging} — a safe pick for heavy users.`,
+  batterySummaryLow: (capacity, charging) => `The ${capacity} battery covers a typical day with ${charging} available when you need a boost.`,
 };
 
 const ar: Translations = {
@@ -652,6 +682,21 @@ const ar: Translations = {
   perf2Mid: "أقوى من اللازم لتطبيقات التصفح اليومية.",
   perf1Mid: "يتعامل مع المهام اليومية، رغم أنه ليس الأسرع.",
   perf2Low: "أي هاتف ذكي حديث يتعامل مع المهام الخفيفة — وهذا ليس استثناءً.",
+  phoneDetailDesc: (name) => `${name} خيار متميز لمن يريد مواصفات قوية وتصميم عصري. استخدم الأقسام أدناه لمقارنة شاشته وكاميرته وبطاريته وأدائه.`,
+  specScore: "التقييم",
+  scoresLabel: "التقييمات",
+  displaySummaryHigh: (size, type, refresh) => `شاشة ${type} بحجم ${size} ومعدل تحديث ${refresh} — من أحدّ الشاشات المتاحة بألوان زاهية وحركة سلسة وسطوع ممتاز في الخارج.`,
+  displaySummaryMid: (size, type, refresh) => `شاشة ${type} مميزة بحجم ${size} ومعدل تحديث ${refresh} — توقع ألواناً غنية وسواداً عميقاً وتمريراً سلساً في جميع الأحوال.`,
+  displaySummaryLow: (size, type, refresh) => `شاشة ${type} بحجم ${size} تتعامل مع الاستخدام اليومي بوضوح جيد ومعدل تحديث ${refresh}.`,
+  cameraSummaryHigh: (main, tele, video) => `نظام كاميرا متميز — المستشعر الرئيسي ${main} والتكبير ${tele} وتسجيل ${video} يجعله من بين الأفضل. كل بُعد بؤري يؤدي بامتياز.`,
+  cameraSummaryMid: (main, video) => `ثلاثي كاميرات متنوع بعدسة رئيسية ${main} وتسجيل ${video} — مثالي للمصورين وصنّاع المحتوى.`,
+  cameraSummaryLow: (main, video) => `تصوير جيد بعدسة ${main} ودعم ${video} للتصوير اليومي والفيديو.`,
+  perfSummaryHigh: (chipset, ram) => `معالج ${chipset} مع ${ram} — قوة لا تُقهر. لا لعبة ولا تطبيق ولا سيناريو تعدد مهام سيبطئه. مستقبلي لسنوات.`,
+  perfSummaryMid: (chipset, ram) => `المعالج ${chipset} و${ram} يتعاملان مع أعباء العمل الثقيلة والألعاب وتعدد المهام دون تردد.`,
+  perfSummaryLow: (chipset, ram) => `المعالج ${chipset} و${ram} يوفران أداءً يومياً سلساً لمعظم المهام.`,
+  batterySummaryHigh: (capacity, charging) => `خلية ${capacity} مصممة لأيام الماراثون. مع ${charging}، الشحن سريع ونادراً ما تصل إلى النفاد.`,
+  batterySummaryMid: (capacity, charging) => `استمرارية موثوقة طوال اليوم بخلية ${capacity} و${charging} — خيار آمن لمستخدمي الطاقة الثقيلة.`,
+  batterySummaryLow: (capacity, charging) => `بطارية ${capacity} تغطي يوماً نموذجياً مع توفر ${charging} عند الحاجة للشحن.`,
 };
 
 const DICT: Record<Lang, Translations> = { en, ar };
